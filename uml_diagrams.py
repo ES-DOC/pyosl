@@ -221,7 +221,7 @@ class BasicUML:
         """ Adds all the nodes that are currently in the allup list of classes
         to the plot. Called as part of generating the final dot file."""
 
-        packages = packages = UMLFactory.ontology.constructors.keys()
+        packages = UMLFactory.ontology.constructors.keys()
         contents = {p: UMLFactory.ontology.get_package_contents(p) for p in packages}
         picker = PackageColour(contents)
 
@@ -231,7 +231,7 @@ class BasicUML:
             node = self.G.get_node(c)
             for a in self.default_node_attributes:
                 node.attr[a] = self.default_node_attributes[a]
-            if self.viewing_option == "name_only":
+            if self.viewing_option == "bubble":
                 if self.allup[c].type == 'enum':
                     node.attr['shape'] = "tab"
                 node.attr['fillcolor'] = picker.colourise(c)
@@ -334,7 +334,7 @@ class TestGraphCases(unittest.TestCase):
 
     def test_makediagrams(self):
         """ Simply makes activity diagrams """
-        d = BasicUML('test_output/testing', option='name_only')
+        d = BasicUML('test_output/testing', option='bubble')
         d.set_visible_classes(['designing.numerical_experiment', ], expand_base=False)
         d.set_association_edges(multiline=True)
         d.generate_pdf()
@@ -343,7 +343,7 @@ class TestGraphCases(unittest.TestCase):
 
     def test_makediagrams_and_omit(self):
         """ Simply makes activity diagrams """
-        d = BasicUML('test_output/testing1', option='name_only')
+        d = BasicUML('test_output/testing1', option='bubble')
         d.set_visible_classes(['designing.numerical_experiment', ], expand_base=False, omit_classes=['designing.project',])
         d.set_association_edges(multiline=True)
         d.generate_pdf()
@@ -352,7 +352,7 @@ class TestGraphCases(unittest.TestCase):
 
     def test_explain_requirements(makedot=False):
         """ A diagram to explain numerical requirements. Exercises direct_layout and direct_edge_ports"""
-        d = BasicUML('test_output/testing2', option='name_only')
+        d = BasicUML('test_output/testing2', option='bubble')
         d.set_visible_package('designing',
                               omit_classes=['activity.axis_member', 'designing.project', 'activity.activity',
                                             'designing.numerical_experiment', 'designing.simulation_plan',
