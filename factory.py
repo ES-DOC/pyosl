@@ -23,7 +23,7 @@ class Ontology:
 
     """ Representation of a complete ontology """
 
-    def __init__(self, base_class= OntoBase):
+    def __init__(self, base_class=OntoBase):
         """ Initialise ontology with a base class """
 
         (self.name, self.version, self.documentation, self.constructors)  = (
@@ -89,6 +89,33 @@ class Ontology:
         return self.klasses[class_type]()
 
 
+class Factory:
+
+    known_subclasses = {}
+    client_factories = {}
+    ontology = Ontology()
+
+    @staticmethod
+    def register(ontology):
+        Factory.ontology = ontology
+
+    @staticmethod
+    def build(klass_name, *args, **kwargs):
+
+        if klass_name in Factory.ontology.builtins:
+            return Factory.ontology.builtins[klass_name]
+
+        if klass_name not in Factory.known_subclasses:
+
+            if klass_name not in Factory.ontology.klasses:
+                raise ValueError('Unknown class "{}" requested from {} Ontology'.format(
+                    klass_name, Factory.ontology.name))
+
+            klass = type(klass_name, (Factory.ontology.klasses[klass_name],),{})
+            Factory.known_subclasses[klass_name] = klass
+
+        return Factory.known_subclasses[klass_name](*args, **kwargs)
+
 
 class TestOntology(unittest.TestCase):
     """ Test ontology stack. Need at least two tests to ensure we handle
@@ -96,19 +123,43 @@ class TestOntology(unittest.TestCase):
 
     def setUp(self):
         self.o = Ontology()
+        assert isinstance(self.o, Ontology)
 
     def test_printable(self):
         print(self.o)
 
     def test_klass_build_numerical_experiment(self):
+        """ Need to make sure we build classes and class instances properly"""
         experiment = self.o.klasses['designing.numerical_experiment']()
-        print(experiment.cim_version, experiment.type_key)
+        assert hasattr(experiment,'cim_version')
+        assert hasattr(experiment,'type_key')
 
     def test_package_contents(self):
+        """ Need to make sure we build package lists properly"""
         contents = self.o.get_package_contents('time')
         assert isinstance(contents,list)
         print(contents)
         assert 'time.calendar' in contents
+
+class TestFactory(unittest.TestCase):
+
+    def setUp(self):
+
+        self.f = Factory
+
+    def testFactorySimple(self):
+
+        klass = 'designing.numerical_requirement'
+        instance = self.f.build(klass)
+        assert hasattr(instance, 'cim_version')
+        assert hasattr(instance, 'type_key')
+
+    def test_builts(self):
+        """ Need to know we can generate a builtin"""
+        x = self.f.build('int')
+        y = x()
+        assert isinstance(y,int)
+
 
 if __name__ == "__main__":
     unittest.main()
