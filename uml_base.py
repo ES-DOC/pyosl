@@ -2,11 +2,6 @@ from pyosl.factory import Ontology, OntoBase, Factory
 from pyosl.uml_utils import uml_bubble, uml_simple_box, uml_enum_box_label, uml_class_box_label
 import unittest
 
-#
-# TODO: Really the UMLFactory could be subsumed into justing Ontology initialising with
-# with the UMLBase class ...
-#
-
 
 class UmlBase(OntoBase):
 
@@ -33,12 +28,9 @@ class UmlBase(OntoBase):
               **kwargs):
         """ Create a typical UML node shape, including linked and base classes as
         requested, and omitting attributes in the list """
-        if self.type == 'class':
+        if self._osl.type == 'class':
             if show_inherited:
-                show_inherited = []
-                for b in self.base_hierarchy:
-                    base = UMLFactory.build(b)
-                    show_inherited += base.properties
+                show_inherited = self._osl.inherited_properties
             return uml_class_box_label(self, show_base, show_properties, show_linked, omit_attributes, show_inherited)
         else:
             return uml_enum_box_label(self, **kwargs)
@@ -57,7 +49,7 @@ class TestUMLFactory(unittest.TestCase):
         attributes (i.e. it is a proper subclass)."""
 
         e = UMLFactory.build('designing.numerical_experiment')
-        assert e.type_key == 'cim.designing.numerical_experiment'
+        assert e._osl.type_key == 'cim.designing.numerical_experiment'
         assert e.label() == 'numerical\nexperiment'
 
 

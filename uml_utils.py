@@ -72,7 +72,7 @@ def uml_bubble(klass):
     :param kwargs: Ignored
     :return:
     """
-    name = klass.ontology_class.replace('_', ' ')
+    name = klass._osl.class_name.replace('_', ' ')
     words = textwrap.wrap(name, 12, break_long_words=False)
     return '\n'.join(words)
 
@@ -91,12 +91,12 @@ def uml_class_box_label(klass,
     an edge on the graph linking to the base class).
     """
 
-    template = """<<TABLE BGCOLOR="{{bg_col}}" BORDER="1" CELLBORDER="0" CELLSPACING="0">{% if base_on %}
-    <TR><TD ALIGN="right" BGCOLOR="{{hdr_col}}"><FONT FACE="Helvetica Italic" COLOR="{{hdr_fc}}">&lt;{{k.base}}&gt;</FONT></TD></TR>{% endif %}
+    template = """<<TABLE BGCOLOR="{{bg_col}}" BORDER="1" CELLBORDER="0" CELLSPACING="0">{% if base %}
+    <TR><TD ALIGN="right" BGCOLOR="{{hdr_col}}"><FONT FACE="Helvetica Italic" COLOR="{{hdr_fc}}">&lt;{{base}}&gt;</FONT></TD></TR>{% endif %}
     {% if k.is_abstract %} <TR><TD ALIGN="CENTER" BGCOLOR="{{hdr_col}}">
     <FONT FACE="Helvetica Bold" COLOR="white">&lt;&lt;abstract&gt;&gt;</FONT></TD></TR>{% endif %}
     <TR><TD ALIGN="CENTER" BORDER="1" SIDES="B" BGCOLOR="{{hdr_col}}">
-    <FONT FACE="Helvetica Bold" COLOR="{{hdr_fc}}"><i>{{k.ontology_class}}</i></FONT></TD></TR>
+    <FONT FACE="Helvetica Bold" COLOR="{{hdr_fc}}"><i>{{ontology_class}}</i></FONT></TD></TR>
     {% if inherited %}<TR><TD ALIGN="center" CELLPADDING="2" BORDER="1" SIDES="T" >
     <FONT FACE="Times-Roman Italic" POINT-SIZE="10">inherited properties</FONT></TD></TR>
     {% for ip in inherited%}<TR><TD ALIGN="LEFT" CELLPADDING="2">{{ip}}</TD></TR>{% endfor %}{% endif %}
@@ -125,20 +125,20 @@ def uml_class_box_label(klass,
             b = b[10:-1]
         return a, b, c
 
-    properties = ['{}: {} &#91;{}&#93;'.format(*fix(p)) for p in klass.properties if show(p)]
+    properties = ['{}: {} &#91;{}&#93;'.format(*fix(p)) for p in klass._osl.properties if show(p)]
 
     palette = Palette()
 
-    if klass.is_abstract:
+    if klass._osl.is_abstract:
         colour_choice = 'abs'
-    elif klass.is_document:
+    elif klass._osl.is_document:
         colour_choice = 'doc'
     else:
         colour_choice = 'def'
 
     bg_col = {0: palette.main(colour_choice), 1: 'white'}[bw]
     hdr_col = {0: palette.top(colour_choice), 1: 'black'}[bw]
-    base_on = klass.base and show_base
+    base = klass._osl.base
     hdr_fc = 'white'
 
     inherited = []
@@ -162,12 +162,12 @@ def uml_class_box_label(klass,
 
     t = Template(template)
 
-    label = t.render(k=klass, bg_col=bg_col, hdr_col=hdr_col, hdr_fc=hdr_fc, base_on=base_on,
-                     properties=properties, constraints=constraints, inherited=inherited)
+    label = t.render(k=klass, ontology_class=klass._osl.class_name, bg_col=bg_col, hdr_col=hdr_col,
+                     hdr_fc=hdr_fc, base=base, properties=properties, constraints=constraints, inherited=inherited)
 
     return label
 
-def uml_simple_box(klass, package_font_size=8, left_pad=3, right_pad=3, show_base=True):
+def uml_simple_box(klass, package_font_size=10, left_pad=3, right_pad=3, show_base=True):
 
     """ Simple labeled box with package name in the corner. The showbase option
     is ignored and exists for interface compatability """
@@ -175,11 +175,15 @@ def uml_simple_box(klass, package_font_size=8, left_pad=3, right_pad=3, show_bas
     #template = """<<font point-size="{{fontsize}}"><i>{{k.package_name}}</i></font><br align="right"/>
     #{% for w in words %}{{left}}{{w}}{{right}}<br align="center"/>{% endfor %}>"""
 
-    template = """<<TABLE BORDER="0" CELLBORDER="0" CELLPADDING="0" CELLSPACING="0">
-    <TR><TD ALIGN="RIGHT"><font point-size="{{fontsize}}"><i>{{k.package_name}}</i></font></TD></TR>
-    {% for w in words %}<TR><TD ALIGN="CENTER">{{left}}{{w}}{{right}}</TD></TR>\n{% endfor %}</TABLE>>"""
+    #template = """<<TABLE BORDER="0" CELLBORDER="0" CELLPADDING="0" CELLSPACING="0">
+    #<TR><TD ALIGN="RIGHT"><font point-size="{{fontsize}}"><i>{{k.package_name}}</i></font></TD></TR>
+    #{% for w in words %}<TR><TD ALIGN="CENTER">{{left}}{{w}}{{right}}</TD></TR>\n{% endfor %}</TABLE>>"""
 
-    name = klass.ontology_class.replace('_',' ')
+    template = """<<TABLE BORDER="0" CELLBORDER="0" CELLPADDING="0" CELLSPACING="0">
+    #<TR><TD ALIGN="CENTER"><font point-size="{{fontsize}}">{{k._osl.package}}::</font></TD></TR>
+    #{% for w in words %}<TR><TD ALIGN="CENTER">{{left}}{{w}}{{right}}</TD></TR>\n{% endfor %}</TABLE>>"""
+
+    name = klass._osl.class_name.replace('_',' ')
     words = textwrap.wrap(name, 12, break_long_words=False)
     leftpad, rightpad = ''.join([' ' for i in range(left_pad)]), ''.join([' ' for i in range(right_pad)])
 
@@ -196,7 +200,7 @@ def uml_enum_box_label(klass, with_definitions=False, definition_nchars=60, head
 
     template = """<<TABLE BGCOLOR="{{bg_col}}" BORDER="1" CELLBORDER="0" CELLSPACING="0">
     <TR><TD ALIGN="CENTER" BGCOLOR="{{hdr_col}}" {{colspan}}>
-    <FONT FACE="Helvetica Bold" COLOR="white">{{k.ontology_class}}</FONT></TD></TR>
+    <FONT FACE="Helvetica Bold" COLOR="white">{{k._osl.ontology_class}}</FONT></TD></TR>
     {% if definition %}<TR><TD COLSPAN="2" BORDER="1" SIDES="B" BALIGN="LEFT">{{definition}}</TD></TR>{% endif %}
     {% for p in k.members %}{% if definition %} <TR><TD ALIGN="LEFT" VALIGN="TOP">{{p[0]}}</TD>
     <TD ALIGN="LEFT" BALIGN="LEFT" VALIGN="TOP">{{p[1]}}</TD></TR>{% else %}
@@ -213,7 +217,7 @@ def uml_enum_box_label(klass, with_definitions=False, definition_nchars=60, head
         definitions = limit_width(k.doc, header_nchars)
 
     members = []
-    for p in klass.members:
+    for p in klass._osl.members:
         if with_definitions:
             rhs = limit_width(p[1], definition_nchars)
             members.append((p[0], rhs))

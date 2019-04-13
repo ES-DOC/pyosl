@@ -1,4 +1,4 @@
-import os, sys
+from collections import OrderedDict
 import unittest
 from pyosl.loader import NAME, VERSION, DOCUMENTATION, PACKAGES
 
@@ -10,13 +10,26 @@ def meta_fix(constructor):
     return constructor
 
 
+class OntoMeta:
+    """ Use to hold all the ontology metadata that provides class typing"""
+    def __init__(self, constructor):
+        for k, v in constructor.items():
+            setattr(self, k, v)
+
+
 class OntoBase:
 
     """ A base class for defining ontology classes """
 
     def __init__(self):
+        pass
 
-        self.ontology, self.ontology_package, self.ontology_class = self.type_key.split('.')
+    def __str__(self):
+        """ If we have a name attribute use it, otherwise just say what we are."""
+        if hasattr(self, 'name'):
+            return '{} ({})'.format(self.name, self._osl.type_key)
+        else:
+            return 'Instance of {}'.format(self._osl.type_key)
 
 
 class Ontology:
@@ -26,7 +39,7 @@ class Ontology:
     def __init__(self, base_class=OntoBase):
         """ Initialise ontology with a base class """
 
-        (self.name, self.version, self.documentation, self.constructors)  = (
+        (self.name, self.version, self.documentation, self.constructors) = (
             NAME, VERSION, DOCUMENTATION, PACKAGES)
 
         self.BaseClass = base_class
@@ -56,9 +69,13 @@ class Ontology:
 
     def __initialise_classes(self):
         """ Initialise the complete set of available classes. This is effectively a class factory"""
+
         self.klasses = {}
+
         for p in self.constructors:
+
             for k, constructor in self.constructors[p].items():
+
                 # it is useful to have the base hierarchy
                 base_hierarchy = []
                 constructor['cim_version'] = self.version
@@ -68,14 +85,32 @@ class Ontology:
                         base_hierarchy.append(next_base)
                         bp = self.get_package_from_key(next_base)
                         next_base = self.constructors[bp][next_base]['base']
+
                 constructor['base_hierarchy'] = base_hierarchy
 
                 # it is useful to inject a complete description of the key as the type name
                 constructor['type_key'] = '{}.{}'.format(self.name, k)
+                constructor['ontology_name'] = self.name
+                constructor['package'], constructor['class_name'] = k.split('.')
 
+                # if the metamodel has some defaults that need propagation
                 constructor = meta_fix(constructor)
 
-                klass = type(k, (self.BaseClass,), constructor)
+                # it is important to add all the base properties in too, if they exist
+                # it is possible for base classes to redefine properties, handle that too
+                if base_hierarchy and constructor['type'] == 'class':
+                    properties = OrderedDict()
+                    for b in base_hierarchy:
+                        pp, kk = b.split('.')
+                        for prop in self.constructors[pp][b]['properties']:
+                            properties[prop[0]] = prop
+                    constructor['inherited_properties'] = [properties[kk] for kk in properties]
+                else:
+                    constructor['inherited_properties'] = []
+
+                meta = OntoMeta(constructor)
+                klass = type(k, (self.BaseClass,), {'_osl': meta})
+
                 self.klasses[k] = klass
 
     def __repr__(self):
@@ -84,9 +119,6 @@ class Ontology:
             result += str(k)+': '+', '.join([k.split('.')[-1] for k in p.keys()])+'\n'
         result += '======='
         return result
-
-    def get_instance(self, class_type):
-        return self.klasses[class_type]()
 
 
 class Factory:
@@ -131,8 +163,8 @@ class TestOntology(unittest.TestCase):
     def test_klass_build_numerical_experiment(self):
         """ Need to make sure we build classes and class instances properly"""
         experiment = self.o.klasses['designing.numerical_experiment']()
-        assert hasattr(experiment,'cim_version')
-        assert hasattr(experiment,'type_key')
+        assert hasattr(experiment._osl, 'cim_version')
+        assert hasattr(experiment._osl, 'type_key')
 
     def test_package_contents(self):
         """ Need to make sure we build package lists properly"""
@@ -140,6 +172,7 @@ class TestOntology(unittest.TestCase):
         assert isinstance(contents,list)
         print(contents)
         assert 'time.calendar' in contents
+
 
 class TestFactory(unittest.TestCase):
 
@@ -151,14 +184,27 @@ class TestFactory(unittest.TestCase):
 
         klass = 'designing.numerical_requirement'
         instance = self.f.build(klass)
-        assert hasattr(instance, 'cim_version')
-        assert hasattr(instance, 'type_key')
+        assert hasattr(instance._osl, 'cim_version')
+        assert hasattr(instance._osl, 'type_key')
 
     def test_builts(self):
         """ Need to know we can generate a builtin"""
         x = self.f.build('int')
         y = x()
         assert isinstance(y,int)
+
+class TestOntoBase(unittest.TestCase):
+
+    def setUp(self):
+        f = Factory()
+        self.k = f.build('designing.numerical_experiment')
+        assert hasattr(self.k, '_osl')
+
+
+    def test_str(self):
+        assert str(self.k) == 'Instance of cim.designing.numerical_experiment'
+
+
 
 
 if __name__ == "__main__":

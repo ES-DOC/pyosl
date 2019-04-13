@@ -115,8 +115,8 @@ class BasicUML:
         self.multiline = multiline
 
         for c in self.allup:
-            if hasattr(self.allup[c], 'properties'):
-                for p in self.allup[c].properties:
+            if hasattr(self.allup[c]._osl, 'properties'):
+                for p in self.allup[c]._osl.properties:
                     target = p[1]
                     if target.startswith('linked_to'):
                         target = target[10:-1]
@@ -167,20 +167,22 @@ class BasicUML:
 
         extras = {}
 
-        if hasattr(klass, 'properties'):
-            candidates = [p[1] for p in klass.properties]
-            for candidate in candidates:
-                if candidate.startswith('linked_to'):
-                    candidate = candidate[10:-1]
-                k = UMLFactory.build(candidate)
-                if hasattr(k, 'cim_version'):
-                    if k not in extras:
-                        extras[candidate] = k
+        if hasattr(klass, '_osl'):
+            meta = klass._osl
+            if hasattr(meta, 'properties'):
+                candidates = [p[1] for p in meta.properties]
+                for candidate in candidates:
+                    if candidate.startswith('linked_to'):
+                        candidate = candidate[10:-1]
+                    k = UMLFactory.build(candidate)
+                    if hasattr(k,'_osl'):
+                        if k not in extras:
+                            extras[candidate] = k
 
-        if expand_base and hasattr(klass, 'base'):
-            if klass.base:
-                if klass.base not in extras:
-                    extras[klass.base] = UMLFactory.build(klass.base)
+            if expand_base and hasattr(meta, 'base'):
+                if meta.base:
+                    if meta.base not in extras:
+                        extras[meta.base] = UMLFactory.build(meta.base)
 
         return extras
 
@@ -192,13 +194,13 @@ class BasicUML:
 
         # baseControl is initialised as True for all classes
         for c in self.allup:
-            if self.allup[c].type == 'enum':
+            if self.allup[c]._osl.type == 'enum':
                 continue
-            if self.allup[c].base:
+            if self.allup[c]._osl.base:
                 # we only care about the first one
-                if self.allup[c].base in self.allup:
+                if self.allup[c]._osl.base in self.allup:
                     self.baseControl[c] = False
-                    self.class_edges.append((self.allup[c].base, c))
+                    self.class_edges.append((self.allup[c]._osl.base, c))
 
 
         # now we have to do something about ranking
@@ -232,7 +234,7 @@ class BasicUML:
             for a in self.default_node_attributes:
                 node.attr[a] = self.default_node_attributes[a]
             if self.viewing_option == "bubble":
-                if self.allup[c].type == 'enum':
+                if self.allup[c]._osl.type == 'enum':
                     node.attr['shape'] = "tab"
                 node.attr['fillcolor'] = picker.colourise(c)
 
@@ -267,7 +269,7 @@ class BasicUML:
                     edge_head_label = '  %s   ' % m
                 # add extra spacing to avoid labels overlapping lines
 
-                composition = self.allup[f].is_document
+                composition = self.allup[f]._osl.is_document
                 # if self.multiline:
                 #    edge_label = '<<table cellpadding="10" border="0"><tr><td>%s</td></tr></table>>' % g.replace('\n','<br/>')
                 # attempt to find a likely distance at which cardinality labels don't overlap edges
@@ -330,6 +332,21 @@ class BasicUML:
                 __add_ranks(singletons, nwidth)
 
 
+class PackageUML:
+    """ provides view of entire ontology and individual package lists"""
+
+    def __init__(self):
+        raise NotImplementedError
+
+    def set_packages(self, package_list=None):
+        if package_list is None:
+            package_list = UMLFactory.ontology.constructors.keys()
+        raise NotImplementedError
+
+    def generate_pdf(self):
+        raise NotImplementedError
+
+
 class TestGraphCases(unittest.TestCase):
 
     def test_makediagrams(self):
@@ -343,12 +360,22 @@ class TestGraphCases(unittest.TestCase):
 
     def test_makediagrams_and_omit(self):
         """ Simply makes activity diagrams """
-        d = BasicUML('test_output/testing1', option='bubble')
+        d = BasicUML('test_output/testing1', option='uml')
         d.set_visible_classes(['designing.numerical_experiment', ], expand_base=False, omit_classes=['designing.project',])
         d.set_association_edges(multiline=True)
         d.generate_pdf()
         # TODO currently not showing multiple links that exist ... only showing one if to the same target
         #  in this case governing mips and related mips
+
+    def test_makediagrams_and_omit_BOX(self):
+        """ Simply makes activity diagrams """
+        d = BasicUML('test_output/testing3', option='box')
+        d.set_visible_classes(['designing.numerical_experiment', ], expand_base=False, omit_classes=['designing.project',])
+        d.set_association_edges(multiline=True)
+        d.generate_pdf()
+        # TODO currently not showing multiple links that exist ... only showing one if to the same target
+        #  in this case governing mips and related mips
+
 
     def test_explain_requirements(makedot=False):
         """ A diagram to explain numerical requirements. Exercises direct_layout and direct_edge_ports"""
@@ -367,6 +394,13 @@ class TestGraphCases(unittest.TestCase):
                          ('Hidden', 'designing.forcing_constraint')])
         d.direct_edge_ports([('designing.numerical_requirement', 'designing.numerical_requirement', 'additional_requirements', 'nw', 'ne'), ])
         d.set_association_edges(multiline=True)
+        d.generate_pdf()
+
+class TestPackages(unittest.TestCase):
+
+    def test_packages(self):
+        d = PackageUML()
+        d.set_packages()
         d.generate_pdf()
 
 
