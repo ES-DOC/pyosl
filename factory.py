@@ -124,15 +124,19 @@ class Ontology:
 class Factory:
 
     known_subclasses = {}
-    client_factories = {}
     ontology = Ontology()
+    descriptor = None
 
     @staticmethod
     def register(ontology):
         Factory.ontology = ontology
 
     @staticmethod
-    def build(klass_name, *args, **kwargs):
+    def add_descriptor(descriptor):
+        Factory.descriptor = descriptor
+
+    @staticmethod
+    def build(klass_name, with_properties=False):
 
         if klass_name in Factory.ontology.builtins:
             return Factory.ontology.builtins[klass_name]
@@ -144,9 +148,17 @@ class Factory:
                     klass_name, Factory.ontology.name))
 
             klass = type(klass_name, (Factory.ontology.klasses[klass_name],),{})
+
+            if with_properties:
+                if Factory.descriptor:
+                    for p in klass._osl.properties + klass._osl.inherited_properties:
+                        setattr(klass, p[0], Factory.descriptor(p))
+                else:
+                    raise ValueError('Attempt to utilise uninitialised descriptor')
+
             Factory.known_subclasses[klass_name] = klass
 
-        return Factory.known_subclasses[klass_name](*args, **kwargs)
+        return Factory.known_subclasses[klass_name]()
 
 
 class TestOntology(unittest.TestCase):
@@ -192,6 +204,14 @@ class TestFactory(unittest.TestCase):
         x = self.f.build('int')
         y = x()
         assert isinstance(y,int)
+
+    def testFactoryComplicated(self):
+        klass = 'designing.numerical_requirement'
+        instance = self.f.build(klass, with_properties=True)
+        assert hasattr(instance, 'name')
+        with self.assertRaises(ValueError):
+            instance.name = 1
+        instance.name = 'bryan'
 
 class TestOntoBase(unittest.TestCase):
 

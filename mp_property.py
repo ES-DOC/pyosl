@@ -1,87 +1,62 @@
 import unittest
 
 
+class PropertyDescriptor:
+
+    """ This python descriptor applied to the class ensures
+    that class instances use the Property type for all the
+    osl ontology attributes. """
+    # Useful explanations of how this works:
+    # https://stackoverflow.com/questions/44548995/how-to-add-and-bind-descriptors-dynamically-in-pytho
+
+    def __init__(self, definition):
+        self.__value = Property(definition)
+
+    def __set__(self, instance, value):
+        self.__value.value = value
+
+    def __get__(self, instance, owner):
+        return self.__value.value
+
+
 class Property:
     """ Provides a class property """
 
-    def __init__(self, property_string, constraint_string=None):
+    def __init__(self, definition):
         """ Initialise with a property tuple from the schema definition"""
-        self.__definition = property_string
-        self.__constraint = constraint_string
-        self.__constrained_value = False
         self.__value = None
-        self.__doc__ = property_string[3]
+        self._name, self._target, self._cardinality, self._doc = definition
+        self._initialised = False
 
-    @property
-    def isFixed(self):
-        """Constraint property may make this property unchangeable """
-        if self.__constrained_value:
-            return 1
-        return 0
-
-    @property
-    def name(self):
-        return self.__definition[0]
-
-    @property
-    def target(self):
-        return self.__definition[1]
-
-    @property
-    def cardinality(self):
-        return self.__definition[2]
-
-
-    def __set(self, value, initialisation=False):
+    def __set(self, value):
 
         # does it respect cardinality?
-        if self.cardinality not in ['0.0', '0.1']:
+        if self._cardinality == '0.0':
+            return ValueError('Attempt to assign value to property with cardinality 0.0 [{}]'.format(self._name))
+        elif self._cardinality not in ['0.1','1.1']:
             if not isinstance(value, list):
                 raise ValueError('Attempt to set single value to list type')
             # check types of list members
             for e in value:
-                if not isinstance(e, self.target):
-                    raise ValueError('List element [{}, type {}] is not of type {}'.format(e, type(e), self.target))
+                if not isinstance(e, type(self._target)):
+                    raise ValueError('List element [{}, type {}] is not of type {}'.format(e, type(e), type(self._target)))
             self.__value = value
         else:
             # is it the right kind of thing?
-            if isinstance(value, self.target):
+            if isinstance(value, type(self._target)):
                 self.__value = value
             else:
-                raise ValueError('Attempt to set inconsistent type on property')
-
-        if self.__constrained_value:
-            # is this initialisation?
-            if initialisation:
-                self.__value = value
-            else:
-                raise ValueError('Cannot set constrained property')
+                raise ValueError('Attempt to set inconsistent type [{}] on property - expected [{}]'.format(
+                    type(value), type(self._target)))
 
     def __get(self):
         return self.__value
 
     def append(self, value):
-        if self.__constrained_value:
-            raise ValueError('Cannot set constrained property')
+        if isinstance(value, self._target):
+            self.__value.append(value)
         else:
-            if isinstance(value, self.target):
-                self.__value.append(value)
-            else:
-                raise ValueError('Attempt to add inconsistent type to list in property')
-
-    def constrain(self, constraint_type, constraint_value):
-        """ Apply a constraint to this property"""
-        if constraint_type == 'constant':
-            self.__constrained_value = True
-            self.set(constraint_value, True)
-        elif constraint_type == 'cardinality':
-            mutable = list(self.__definition)
-            mutable[2] = constraint_value
-            self.__definition = tuple(mutable)
-            if constraint_type == '0.0':
-                self.__constrained_value = True
-        else:
-            raise ValueError('Constraint {} not yet supported'.format(constraint_type))
+            raise ValueError('Attempt to add inconsistent type to list in property')
 
     def __eq__(self, other):
         if not isinstance(other, Property):
@@ -118,7 +93,6 @@ class TestProperty(unittest.TestCase):
             p.value = 1
             p.value = ['abc', 'def']
         p.value = 'irrelevant'
-
 
     def test_lists(self):
         """ Test we can't set single values or use the wrong type in a list"""
