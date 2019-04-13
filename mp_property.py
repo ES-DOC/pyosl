@@ -42,6 +42,7 @@ class Property:
             for e in value:
                 if not isinstance(e, self.target):
                     raise ValueError('List element [{}, type {}] is not of type {}'.format(e, type(e), self.target))
+            self.__value = value
         else:
             # is it the right kind of thing?
             if isinstance(value, self.target):
@@ -83,6 +84,8 @@ class Property:
             raise ValueError('Constraint {} not yet supported'.format(constraint_type))
 
     def __eq__(self, other):
+        if not isinstance(other, Property):
+            return False
         if self.__definition != other.__definition:
             return 0
         if self.value != other.value:
@@ -116,6 +119,7 @@ class TestProperty(unittest.TestCase):
             p.value = ['abc', 'def']
         p.value = 'irrelevant'
 
+
     def test_lists(self):
         """ Test we can't set single values or use the wrong type in a list"""
         p = Property(self.definitions[1])
@@ -127,6 +131,22 @@ class TestProperty(unittest.TestCase):
         with self.assertRaises(ValueError):
             p.value = [1, 2, 3]
             p.append('4')
+
+    def test_equality(self):
+        """ Test equality"""
+        p1 = Property(self.definitions[0])
+        p2 = Property(self.definitions[0])
+        p1.value = 'fred'
+        p2.value = 'fred'
+        self.assertEqual(p1, p2)
+
+    def test_inequality(self):
+        """ Test equality"""
+        p1 = Property(self.definitions[0])
+        p2 = Property(self.definitions[0])
+        p1.value = 'fred'
+        p2.value = 'jane'
+        self.assertNotEqual(p1, p2)
 
 
 if __name__ == "__main__":
