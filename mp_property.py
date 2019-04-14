@@ -22,6 +22,15 @@ class PropertyDescriptor:
 class Property:
     """ Provides a class property """
 
+    validator = lambda x,y : True
+
+    @staticmethod
+    def set_validator(validator):
+        """ Property needs to be told how to validator a value against
+        a target, otherwise it will just default to allowing any
+        value to be set, regardless of target type."""
+        Property.validator = validator
+
     def __init__(self, definition):
         """ Initialise with a property tuple from the schema definition"""
         self.__value = None
@@ -38,22 +47,21 @@ class Property:
                 raise ValueError('Attempt to set single value to list type')
             # check types of list members
             for e in value:
-                if not isinstance(e, type(self._target)):
+                if not Property.validator(e, self._target):
                     raise ValueError('List element [{}, type {}] is not of type {}'.format(e, type(e), type(self._target)))
             self.__value = value
         else:
             # is it the right kind of thing?
-            if isinstance(value, type(self._target)):
+            if Property.validator(value, self._target):
                 self.__value = value
             else:
-                raise ValueError('Attempt to set inconsistent type [{}] on property - expected [{}]'.format(
-                    type(value), type(self._target)))
+                raise ValueError('Attempt to set inconsistent type on property {}'.format(self._name))
 
     def __get(self):
         return self.__value
 
     def append(self, value):
-        if isinstance(value, self._target):
+        if Property.validator(value, self._target):
             self.__value.append(value)
         else:
             raise ValueError('Attempt to add inconsistent type to list in property')
@@ -61,8 +69,9 @@ class Property:
     def __eq__(self, other):
         if not isinstance(other, Property):
             return False
-        if self.__definition != other.__definition:
-            return 0
+        for n in ['_name','_cardinality','_target','_doc']:
+            if getattr(self, n) != getattr(other, n):
+                return 0
         if self.value != other.value:
             return 0
         return 1
@@ -81,10 +90,13 @@ class TestProperty(unittest.TestCase):
     types are tested in the ontology class code that uses these properties."""
 
     def setUp(self):
+
         self.definitions = [
-            ('my_attribute', str, '0.1', 'Not very interesting'),
-            ('my_list_attr', int, '0.N', 'bunch of numbers')
+            ('my_attribute', 'str', '0.1', 'Not very interesting'),
+            ('my_list_attr', 'int', '0.N', 'bunch of numbers')
         ]
+        test_validator = lambda x, y: type(x) == {'str':str, 'int':int} [y]
+        Property.set_validator(test_validator)
 
     def test_builtin(self):
         """ Test this works with a builtin python type as the target type"""
