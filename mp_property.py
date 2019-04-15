@@ -1,5 +1,3 @@
-import unittest
-
 
 class PropertyDescriptor:
 
@@ -19,6 +17,26 @@ class PropertyDescriptor:
         return self.__value.value
 
 
+class PropertyList (list):
+    """ Lightweight type checking"""
+    # TODO intercept the other methods if there is a case for it.
+
+    def __init__(self, target, value=[]):
+        self._target = target
+        for e in value:
+            if not Property.validator(e, self._target):
+                raise ValueError('List element [{}, type {}] is not of type {}'.format(
+                    e, type(e), type(self._target)))
+        list.__init__(self, value)
+
+    def append(self, value):
+
+        if Property.validator(value, self._target):
+            list.append(value)
+        else:
+            raise ValueError('Attempt to add wrong type to list')
+
+
 class Property:
     """ Provides a class property """
 
@@ -32,12 +50,20 @@ class Property:
         Property.validator = validator
 
     def __init__(self, definition):
-        """ Initialise with a property tuple from the schema definition"""
-        self.__value = None
+        """ Initialise with a property tuple from the schema definition. """
+        # In practice initialising the doc string isn't very useful, since
+        # it appears that there is no way to get to it, but we do it anyway
+        # in case we find a way to do it in the future.
         self._name, self._target, self._cardinality, self._doc = definition
+        if self._cardinality in ['0.0','0.1','1.1']:
+            self.__value = None
+        else:
+            self.__value = PropertyList(self._target, [])
         self._initialised = False
 
     def __set(self, value):
+
+        # TODO include support for a one time initialisation of something that cannot be changed.
 
         # does it respect cardinality?
         if self._cardinality == '0.0':
@@ -46,10 +72,8 @@ class Property:
             if not isinstance(value, list):
                 raise ValueError('Attempt to set single value to list type')
             # check types of list members
-            for e in value:
-                if not Property.validator(e, self._target):
-                    raise ValueError('List element [{}, type {}] is not of type {}'.format(e, type(e), type(self._target)))
-            self.__value = value
+            self.__value = PropertyList(self._target, value)
+
         else:
             # is it the right kind of thing?
             if Property.validator(value, self._target):
@@ -69,7 +93,7 @@ class Property:
     def __eq__(self, other):
         if not isinstance(other, Property):
             return False
-        for n in ['_name','_cardinality','_target','_doc']:
+        for n in ['_name', '_cardinality', '_target', '_doc']:
             if getattr(self, n) != getattr(other, n):
                 return 0
         if self.value != other.value:
@@ -85,55 +109,4 @@ class Property:
     value = property(__get, __set)
 
 
-class TestProperty(unittest.TestCase):
-    """ These tests all use builtin properties, ontology class
-    types are tested in the ontology class code that uses these properties."""
 
-    def setUp(self):
-
-        self.definitions = [
-            ('my_attribute', 'str', '0.1', 'Not very interesting'),
-            ('my_list_attr', 'int', '0.N', 'bunch of numbers')
-        ]
-        test_validator = lambda x, y: type(x) == {'str':str, 'int':int} [y]
-        Property.set_validator(test_validator)
-
-    def test_builtin(self):
-        """ Test this works with a builtin python type as the target type"""
-        p = Property(self.definitions[0])
-        with self.assertRaises(ValueError):
-            p.value = 1
-            p.value = ['abc', 'def']
-        p.value = 'irrelevant'
-
-    def test_lists(self):
-        """ Test we can't set single values or use the wrong type in a list"""
-        p = Property(self.definitions[1])
-        p.value = [1, 2, 3]
-        with self.assertRaises(ValueError):
-            p.value = 1
-        with self.assertRaises(ValueError):
-            p.value = [1, 2, '3']
-        with self.assertRaises(ValueError):
-            p.value = [1, 2, 3]
-            p.append('4')
-
-    def test_equality(self):
-        """ Test equality"""
-        p1 = Property(self.definitions[0])
-        p2 = Property(self.definitions[0])
-        p1.value = 'fred'
-        p2.value = 'fred'
-        self.assertEqual(p1, p2)
-
-    def test_inequality(self):
-        """ Test equality"""
-        p1 = Property(self.definitions[0])
-        p2 = Property(self.definitions[0])
-        p1.value = 'fred'
-        p2.value = 'jane'
-        self.assertNotEqual(p1, p2)
-
-
-if __name__ == "__main__":
-    unittest.main()

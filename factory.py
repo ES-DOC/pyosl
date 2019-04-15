@@ -1,7 +1,5 @@
 from collections import OrderedDict
-import unittest
-from pyosl.loader import NAME, VERSION, DOCUMENTATION, PACKAGES
-
+from loader import NAME, VERSION, DOCUMENTATION, PACKAGES
 
 def meta_fix(constructor):
     """ Fix constructors to conform to metamodel defaults"""
@@ -85,6 +83,8 @@ class Ontology:
                         base_hierarchy.append(next_base)
                         bp = self.get_package_from_key(next_base)
                         next_base = self.constructors[bp][next_base]['base']
+                else:
+                    constructor['base'] = None
 
                 constructor['base_hierarchy'] = base_hierarchy
 
@@ -108,10 +108,24 @@ class Ontology:
                 else:
                     constructor['inherited_properties'] = []
 
-                meta = OntoMeta(constructor)
-                klass = type(k, (self.BaseClass,), {'_osl': meta})
+        # now we have nice tidy constructors, lets' go through and build off base classes
+        for p in self.constructors:
+            for k, constructor in self.constructors[p].items():
+                if k not in self.klasses:
+                    self.klasses[k] = self.__build_class(k, constructor)
+                # else it was already built as a base class
 
-                self.klasses[k] = klass
+    def __build_class(self, key, constructor):
+
+        meta = OntoMeta(constructor)
+        base = constructor['base']
+        if base:
+            if base not in self.klasses:
+                package = base.split('.')[0]
+                self.klasses[base] = self.__build_class(base, self.constructors[package][base])
+            return type(key, (self.klasses[base],), {'_osl': meta})
+        else:
+            return type(key, (self.BaseClass,), {'_osl': meta})
 
     def __repr__(self):
         result = '== ontology: {} == \n'.format(self.name)
@@ -126,106 +140,114 @@ class Factory:
     known_subclasses = {}
     ontology = Ontology()
     descriptor = None
+    my_property = None
 
     @staticmethod
     def register(ontology):
+
+        """
+        Used to specialise the ontolology beyond the core functionality which
+        simply creates empty classes with _pyosl definitions attached to them.
+        """
+
         Factory.ontology = ontology
 
     @staticmethod
-    def add_descriptor(descriptor):
+    def add_descriptor(descriptor, d_property):
+
+        """ If the Factory.descriptor is present, it is used to bind the property d_property
+        to factory attributes defined in the properties of the pyosl. If it is not present,
+        then the pysol properties are not bound to attributes."""
+
         Factory.descriptor = descriptor
+        Factory.my_property = d_property
 
     @staticmethod
-    def build(klass_name, with_properties=False):
+    def core_validator(value, target):
+
+        """ Returns True if value is of type target, where target is a string
+        description of a type of the form which appears in property definitions """
+
+        # Why not use isinstance? Because inside a property definition
+        # we don't want to carry an instance of anything ... and in any
+        # case we want to support DocReference and NilReason
+
+        if isinstance(value, type(Factory.known_subclasses['shared.nil_reason']())):
+            return True
+        if target in Factory.ontology.builtins:
+            return isinstance(value, Factory.ontology.builtins[target])
+        elif target.startswith('linked_to'):
+            # need to handle doc references and their internal type
+            target_type = target[10:-1]
+            if isinstance(value, type(Factory.known_subclasses[target_type]())):
+                return True
+            else:
+                if not isinstance(value, type(Factory.known_subclasses['shared.doc_reference'])):
+                    return False
+                return value.type == target
+            return NotImplementedError
+        elif target in Factory.known_subclasses:
+            return isinstance(value, Factory.known_subclasses[target])
+        else:
+            return False
+
+    @staticmethod
+    def build(klass_name):
+
+        """ Builds a specific classs and adds it to the classes known to the factory. """
 
         if klass_name in Factory.ontology.builtins:
             return Factory.ontology.builtins[klass_name]
 
+        # needed for proper usage of nearly any class, so just build them now.
+        if Factory.descriptor:
+            # we probably need all the classes, so let's just build them all now
+            minimal = Factory.ontology.klasses
+        else:
+            minimal = ['shared.doc_reference', 'shared.nil_reason']
+        for k in minimal:
+            if k not in Factory.known_subclasses:
+                Factory.known_subclasses[k] = Factory.__build(k)
+
+        # only build it if we don't know about it.
         if klass_name not in Factory.known_subclasses:
 
             if klass_name not in Factory.ontology.klasses:
                 raise ValueError('Unknown class "{}" requested from {} Ontology'.format(
                     klass_name, Factory.ontology.name))
 
-            klass = type(klass_name, (Factory.ontology.klasses[klass_name],),{})
+            Factory.known_subclasses[klass_name] = Factory.__build(klass_name)
 
-            if with_properties:
-                if Factory.descriptor:
-                    for p in klass._osl.properties + klass._osl.inherited_properties:
-                        setattr(klass, p[0], Factory.descriptor(p))
-                else:
-                    raise ValueError('Attempt to utilise uninitialised descriptor')
+        candidate = Factory.known_subclasses[klass_name]()
 
-            Factory.known_subclasses[klass_name] = klass
+        if hasattr(candidate,'is_abstract'):
+            if candidate._osl.is_abstract:
+                raise ValueError("Attempt to instantiate abstract class")
+        return candidate
 
-        return Factory.known_subclasses[klass_name]()
+    def __build(key):
 
+        """ Convenience method for building classes. Isolated for code readability. """
 
-class TestOntology(unittest.TestCase):
-    """ Test ontology stack. Need at least two tests to ensure we handle
-    attempted reloads of the Ontology class."""
+        # `We need to build off base classes here too ...
+        package, name = key.split('.')
+        base = Factory.ontology.constructors[package][key]['base']
+        if base:
+            if base not in Factory.known_subclasses:
+                Factory.known_subclasses[base] = Factory.__build(base)
+            meta = OntoMeta(Factory.ontology.constructors[package][key])
+            klass = type(key, (Factory.known_subclasses[base],), {'_osl': meta})
+        else:
+            klass = type(key, (Factory.ontology.klasses[key],), {})
 
-    def setUp(self):
-        self.o = Ontology()
-        assert isinstance(self.o, Ontology)
+        if Factory.descriptor:
 
-    def test_printable(self):
-        print(self.o)
+            Factory.my_property.set_validator(Factory.core_validator)
+            if hasattr(klass._osl, 'properties'):
+                for p in klass._osl.properties + klass._osl.inherited_properties:
+                    setattr(klass, p[0], Factory.descriptor(p))
 
-    def test_klass_build_numerical_experiment(self):
-        """ Need to make sure we build classes and class instances properly"""
-        experiment = self.o.klasses['designing.numerical_experiment']()
-        assert hasattr(experiment._osl, 'cim_version')
-        assert hasattr(experiment._osl, 'type_key')
-
-    def test_package_contents(self):
-        """ Need to make sure we build package lists properly"""
-        contents = self.o.get_package_contents('time')
-        assert isinstance(contents,list)
-        print(contents)
-        assert 'time.calendar' in contents
-
-
-class TestFactory(unittest.TestCase):
-
-    def setUp(self):
-
-        self.f = Factory
-
-    def testFactorySimple(self):
-
-        klass = 'designing.numerical_requirement'
-        instance = self.f.build(klass)
-        assert hasattr(instance._osl, 'cim_version')
-        assert hasattr(instance._osl, 'type_key')
-
-    def test_builts(self):
-        """ Need to know we can generate a builtin"""
-        x = self.f.build('int')
-        y = x()
-        assert isinstance(y,int)
-
-    def testFactoryComplicated(self):
-        klass = 'designing.numerical_requirement'
-        instance = self.f.build(klass, with_properties=True)
-        assert hasattr(instance, 'name')
-        with self.assertRaises(ValueError):
-            instance.name = 1
-        instance.name = 'bryan'
-
-class TestOntoBase(unittest.TestCase):
-
-    def setUp(self):
-        f = Factory()
-        self.k = f.build('designing.numerical_experiment')
-        assert hasattr(self.k, '_osl')
-
-
-    def test_str(self):
-        assert str(self.k) == 'Instance of cim.designing.numerical_experiment'
+        return klass
 
 
 
-
-if __name__ == "__main__":
-    unittest.main()
