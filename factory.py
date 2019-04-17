@@ -1,6 +1,7 @@
 from collections import OrderedDict
 from loader import NAME, VERSION, DOCUMENTATION, PACKAGES
 
+
 def meta_fix(constructor):
     """ Fix constructors to conform to metamodel defaults"""
     if 'is_document' not in constructor:
@@ -25,9 +26,13 @@ class OntoBase:
     def __str__(self):
         """ If we have a name attribute use it, otherwise just say what we are."""
         if hasattr(self, 'name'):
-            return '{} ({})'.format(self.name, self._osl.type_key)
-        else:
-            return 'Instance of {}'.format(self._osl.type_key)
+            if self.name:
+                return '{} ({})'.format(self.name, self._osl.type_key)
+        return 'Instance of {}'.format(self._osl.type_key)
+
+    def __eq__(self, other):
+        print('Oh no!')
+        return self == other
 
 
 class Ontology:
@@ -151,6 +156,7 @@ class Factory:
         """
 
         Factory.ontology = ontology
+        Factory.known_subclasses = {}
 
     @staticmethod
     def add_descriptor(descriptor, d_property):

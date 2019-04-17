@@ -1,4 +1,4 @@
-from factory import Ontology, OntoBase, Factory
+from factory import OntoBase
 from uml_utils import uml_bubble, uml_simple_box, uml_enum_box_label, uml_class_box_label
 
 
@@ -33,8 +33,4 @@ class UmlBase(OntoBase):
             return uml_class_box_label(self, show_base, show_properties, show_linked, omit_attributes, show_inherited)
         else:
             return uml_enum_box_label(self, **kwargs)
-
-
-class UMLFactory(Factory):
-    Factory.register(Ontology(UmlBase))
 

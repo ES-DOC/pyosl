@@ -1,8 +1,9 @@
 import math
 import pygraphviz as pgv
 from uml_utils import PackageColour
-from uml_base import UMLFactory
+from factory import Factory
 from copy import copy
+from uml_base import UmlBase
 
 
 class BasicUML:
@@ -12,6 +13,8 @@ class BasicUML:
     def __init__(self, filestem, option='uml', **kwargs):
 
         """ Set up with output filename, and any default graph properties"""
+
+        assert Factory.ontology.BaseClass == UmlBase
 
         self.filestem = filestem
         self.viewing_option = option
@@ -69,7 +72,7 @@ class BasicUML:
         # use a dictionary of class instances keyed by class name
         for c in classes2view:
             if c not in omit_classes:
-                self.classes2view[c] = UMLFactory.build(c)
+                self.classes2view[c] = Factory.build(c)
         self.allup = copy(self.classes2view)
 
         # find all the extra ones that are in the properties of the ones we
@@ -78,7 +81,7 @@ class BasicUML:
             for c in self.classes2view:
                 associated = self.__find_associated_classes(self.classes2view[c], expand_base=expand_base)
                 for k, v in associated.items():
-                    if k not in self.allup:
+                    if k not in self.allup and k not in Factory.ontology.builtins:
                         self.allup[k] = v
                         print('..adding {} for {}'.format(k,c))
 
@@ -102,7 +105,7 @@ class BasicUML:
     def set_visible_package(self, package, omit_classes=[]):
         """" Choose all classes from one package"""
 
-        packages = UMLFactory.ontology.get_package_contents(package)
+        packages = Factory.ontology.get_package_contents(package)
         self.set_visible_classes(packages, omit_classes=omit_classes)
 
 
@@ -157,7 +160,7 @@ class BasicUML:
         """ Generates the output PDF file """
 
         self.generate_dot()
-        self.G.draw('{}.pdf'.format(self.filestem),prog='dot')
+        self.G.draw('{}.pdf'.format(self.filestem), prog='dot')
 
     def __find_associated_classes(self, klass, expand_base=True):
 
@@ -173,15 +176,14 @@ class BasicUML:
                 for candidate in candidates:
                     if candidate.startswith('linked_to'):
                         candidate = candidate[10:-1]
-                    k = UMLFactory.build(candidate)
-                    if hasattr(k,'_osl'):
-                        if k not in extras:
-                            extras[candidate] = k
+                    if candidate not in extras:
+                        k = Factory.build(candidate)
+                        extras[candidate] = k
 
             if expand_base and hasattr(meta, 'base'):
                 if meta.base:
                     if meta.base not in extras:
-                        extras[meta.base] = UMLFactory.build(meta.base)
+                        extras[meta.base] = Factory.build(meta.base)
 
         return extras
 
@@ -200,7 +202,6 @@ class BasicUML:
                 if self.allup[c]._osl.base in self.allup:
                     self.baseControl[c] = False
                     self.class_edges.append((self.allup[c]._osl.base, c))
-
 
         # now we have to do something about ranking
         # otherwise we're all at sea.
@@ -222,8 +223,8 @@ class BasicUML:
         """ Adds all the nodes that are currently in the allup list of classes
         to the plot. Called as part of generating the final dot file."""
 
-        packages = UMLFactory.ontology.constructors.keys()
-        contents = {p: UMLFactory.ontology.get_package_contents(p) for p in packages}
+        packages = Factory.ontology.constructors.keys()
+        contents = {p: Factory.ontology.get_package_contents(p) for p in packages}
         picker = PackageColour(contents)
 
         for c in self.allup:
@@ -331,19 +332,7 @@ class BasicUML:
                 __add_ranks(singletons, nwidth)
 
 
-class PackageUML:
-    """ provides view of entire ontology and individual package lists"""
 
-    def __init__(self):
-        raise NotImplementedError
-
-    def set_packages(self, package_list=None):
-        if package_list is None:
-            package_list = UMLFactory.ontology.constructors.keys()
-        raise NotImplementedError
-
-    def generate_pdf(self):
-        raise NotImplementedError
 
 
 

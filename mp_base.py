@@ -1,5 +1,5 @@
-from factory import Ontology, OntoBase, Factory
-from mp_property import PropertyDescriptor, Property
+from factory import OntoBase
+
 
 class Base(OntoBase):
     """ This is the ontology base class, used to ensure that the properties
@@ -25,9 +25,5 @@ class Base(OntoBase):
     def __ne__(self, other):
         return self == other
 
-
-class OntoFactory(Factory):
-    Factory.register(Ontology(Base))
-    Factory.add_descriptor(PropertyDescriptor, Property)
 
 

@@ -1,5 +1,6 @@
-import unittest
 from factory import Ontology, Factory
+import unittest
+
 
 class TestOntology(unittest.TestCase):
     """ Test ontology stack. Need at least two tests to ensure we handle

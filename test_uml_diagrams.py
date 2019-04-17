@@ -1,7 +1,25 @@
 import unittest
-from uml_diagrams import BasicUML, PackageUML
+
+from uml_diagrams import BasicUML
+from uml_packages import PackageUML
+from uml_base import UmlBase
+from factory import Factory, Ontology
+
 
 class TestGraphCases(unittest.TestCase):
+
+    def setUp(self):
+        Factory.register(Ontology(UmlBase))
+
+    def test_experiment(self):
+        """ Test that we can build a klass, and that it has the correct typekey
+        (i.e. it's come from the ontology), and that it has one of the new
+        attributes (i.e. it is a proper subclass)."""
+
+        e = Factory.build('designing.numerical_experiment')
+        assert e._osl.type_key == 'cim.designing.numerical_experiment'
+        assert e.label() == 'numerical\nexperiment'
+
 
     def test_makediagrams(self):
         """ Simply makes activity diagrams """
@@ -30,7 +48,6 @@ class TestGraphCases(unittest.TestCase):
         # TODO currently not showing multiple links that exist ... only showing one if to the same target
         #  in this case governing mips and related mips
 
-
     def test_explain_requirements(makedot=False):
         """ A diagram to explain numerical requirements. Exercises direct_layout and direct_edge_ports"""
         d = BasicUML('test_output/testing2', option='bubble')
@@ -50,12 +67,13 @@ class TestGraphCases(unittest.TestCase):
         d.set_association_edges(multiline=True)
         d.generate_pdf()
 
-class TestPackages(unittest.TestCase):
 
-    def test_packages(self):
-        d = PackageUML()
-        d.set_packages()
-        d.generate_pdf()
+class TestPackageUML(unittest.TestCase):
+
+    def test_umlontology(self):
+
+        p = PackageUML('test_all-uml')
+        p.generate_pdf()
 
 
 if __name__ == "__main__":
