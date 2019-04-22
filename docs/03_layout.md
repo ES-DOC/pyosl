@@ -4,7 +4,7 @@ The ontology is [defined](definitions.md) in files. In this section we describe 
 
 The idea here is that we support both direct editing of the ontology on disk, and the use of the python code sharing machinery for community use. To do that, the ontology needs to be  "pip installable", so that when the ontology is ready to go (and has been appropriate [registered](https://packaging.python.org/tutorials/packaging-projects/#uploading-the-distribution-archives), it can be made available to anyone via
 
-`pip install "ontology name`
+`pip install "ontology name"`
 
 *__TODO__: Actually we need to add the code to support either local directory or pip, but that will be straight forward.*
 
