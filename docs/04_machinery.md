@@ -35,6 +35,8 @@ print (f._osl.is_document, f._osl.name)
 
 ``` 
 
+The underlying code here makes all classes and enums instances of the ``OntoBase`` class.
+
 The factory also includes a validator for checking to see if any specific
 instance is an acceptable value for a particular property attribute. This 
 validator adds some additional functionality over the standard python
@@ -56,7 +58,16 @@ assert f.core_validator(eg_tc, 'designing.numerical_requirement') == True
 
 ```
 
-It will be seen in the examples to come, that much more functionality
-can be built on these simple types.
+In addition to the `build` and `core_validator` methods, the factory also two more 
+important methods which provide extensibility:
+1. a `register` method that can be used to change the base class used for 
+the Ontology, and
+2. an `add_descriptor` method which can bind pyosl attributes to specific properties.
 
-#
+These methods provide the extensibility to allow designers to use pyosl to develop their
+own tooling. Two simple examples are provided
+ - the [UML tooling](05_uml_tooling.md) makes use of the register functionality to build
+ tools to help design and understand an ontology, and 
+ - the [the simple extension example](06_simple_examples.md) makes use of both methods
+ to provide tools for using the ontology to manipulate information.
+
