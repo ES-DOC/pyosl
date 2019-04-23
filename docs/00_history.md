@@ -63,7 +63,7 @@ understand the content of CIM2 itself.
 
 How an ontology can be designed and used by the tools is documented in
 
- * the [metamodel](00_metamodel.md) description,
+ * the [metamodel](01_metamodel.md) description,
  * instructinos for [defining](02_definitions.md) the vocabulary contents within files, 
  and 
  * [laying out](03_layout.md) the files so that the [software machinery](04_machinery.md) can work.
