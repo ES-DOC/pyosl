@@ -3,11 +3,13 @@
 The `mp_base.py` and `mp_property.py` modules provide the necessary core functionality for extending 
 OntoBase class to support making instances fully respect class properties, so that 
 
-1. instances respects the `pstr` property, 
+1. instances respects the `pstr` property,
+1. instances of documents have document metadata, 
 1. instances can be compared, and
 1. instances of classes have typed attributes from the ontology.
 
-This latter is achieved by ensuring that where a class has a property definition of the form:
+The first three of these are implemented by methods in the ``Base`` class. The fourth
+is achieved by ensuring that where a class has a property definition of the form:
 
 ```("name", "target", "cardinality", "docstring")```
 
@@ -25,8 +27,8 @@ happily until it reaches a point where some extra method/property/attribute is e
 but not available, and this may be a very long way from the source - in another
 repository for example).
 
-Enforcing `pstr` and equality is achieved by a simple subclass of `OntoBase` - `Base`, and
-the property typing is enforced by one further function of the core factory: 
+Enforcing `pstr`, document metadata,  and equality is achieved by a simple subclass of `OntoBase` - `Base`, 
+and the property typing is enforced by one further function of the core factory: 
 the `add_descriptor` method, which supports binding a user defined property class to all the
 pyosl attributes via a user defined descriptor class. 
 

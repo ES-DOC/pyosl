@@ -1,9 +1,14 @@
-from factory import OntoBase
+from factory import OntoBase, Factory
 
 
 class Base(OntoBase):
     """ This is the ontology base class, used to ensure that the properties
     defined in the ontology are respected."""
+
+    def __init__(self):
+        super().__init__()
+        if self._osl.is_document:
+            self._meta = Factory.build('shared.doc_meta_info')
 
     def __str__(self):
         if hasattr(self._osl, 'pstr'):
@@ -24,6 +29,3 @@ class Base(OntoBase):
 
     def __ne__(self, other):
         return self == other
-
-
-

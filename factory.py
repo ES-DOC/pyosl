@@ -3,11 +3,10 @@ from loader import NAME, VERSION, DOCUMENTATION, PACKAGES
 
 
 def meta_fix(constructor):
-    """ Fix constructors to conform to metamodel defaults"""
+    """ Fix any deficiencies in the constructor needed to conform to the metamodel"""
     if 'is_document' not in constructor:
         constructor['is_document'] = False
     return constructor
-
 
 class OntoMeta:
     """ Use to hold all the ontology metadata that provides class typing"""
@@ -98,9 +97,6 @@ class Ontology:
                 constructor['ontology_name'] = self.name
                 constructor['package'], constructor['class_name'] = k.split('.')
 
-                # if the metamodel has some defaults that need propagation
-                constructor = meta_fix(constructor)
-
                 # it is important to add all the base properties in too, if they exist
                 # it is possible for base classes to redefine properties, handle that too
                 if base_hierarchy and constructor['type'] == 'class':
@@ -109,9 +105,16 @@ class Ontology:
                         pp, kk = b.split('.')
                         for prop in self.constructors[pp][b]['properties']:
                             properties[prop[0]] = prop
+                        if 'is_document' not in constructor:
+                            if 'is_document' in self.constructors[pp][b]:
+                                constructor['is_document'] = self.constructors[pp][b]['is_document']
                     constructor['inherited_properties'] = [properties[kk] for kk in properties]
                 else:
                     constructor['inherited_properties'] = []
+
+                constructor = meta_fix(constructor)
+
+
 
         # now we have nice tidy constructors, lets' go through and build off base classes
         for p in self.constructors:

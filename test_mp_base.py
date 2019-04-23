@@ -54,6 +54,11 @@ class TestBase(unittest.TestCase):
     def test_doc_reference_behaviour(self):
         pass
 
+    def test_document_metadata(self):
+        self.assertFalse(hasattr(self.dr, '_meta'))
+        self.assertTrue(hasattr(self.sp, '_meta'))
+        self.assertTrue(Factory.core_validator(self.sp._meta, 'shared.doc_meta_info'))
+
 
 if __name__ == "__main__":
     unittest.main()
