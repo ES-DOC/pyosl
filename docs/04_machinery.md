@@ -60,12 +60,14 @@ assert f.core_validator(eg_tc, 'designing.numerical_requirement') == True
 
 In addition to the `build` and `core_validator` methods, the factory also two more 
 important methods which provide extensibility:
+
 1. a `register` method that can be used to change the base class used for 
 the Ontology, and
 2. an `add_descriptor` method which can bind pyosl attributes to specific properties.
 
 These methods provide the extensibility to allow designers to use pyosl to develop their
 own tooling. Two simple examples are provided
+
  - the [UML tooling](05_uml_tooling.md) makes use of the register functionality to build
  tools to help design and understand an ontology, and 
  - the [the simple extension example](06_simple_examples.md) makes use of both methods
