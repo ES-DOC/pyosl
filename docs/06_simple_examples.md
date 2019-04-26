@@ -20,7 +20,7 @@ and that the cardinality is respected.
 
 This enforcement of property typing, which is not normal in Python - which normally 
 prefers [duck typing](https://en.wikipedia.org/wiki/Duck_typing) - is included since 
-experience has shown that in using metadadta sourced from scientists in full stack work 
+experience has shown that in using metadata sourced from scientists in full stack work 
 with  serialisation and deserialisation with html and pdf views it is simpler to enforce 
 typing at source (to be specific, something might pass quite a long way along, quacking
 happily until it reaches a point where some extra method/property/attribute is expected
