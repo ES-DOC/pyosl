@@ -30,8 +30,8 @@ from factory import Factory
 f = Factory()
 klass = 'designing.numerical_requirement'
 instance = f.build(klass)
-f._osl.name='Fred'
-print (f._osl.is_document, f._osl.name)
+instance._osl.name='Fred'
+print (instance._osl.is_document, instance._osl.name)
 
 ``` 
 
