@@ -20,7 +20,6 @@ class TestGraphCases(unittest.TestCase):
         assert e._osl.type_key == 'cim.designing.numerical_experiment'
         assert e.label() == 'numerical\nexperiment'
 
-
     def test_makediagrams(self):
         """ Simply makes activity diagrams """
         d = BasicUML('test_output/testing', option='bubble')
@@ -64,6 +63,20 @@ class TestGraphCases(unittest.TestCase):
                          ('designing.multi_ensemble', 'designing.start_date_ensemble'),
                          ('Hidden', 'designing.forcing_constraint')])
         d.direct_edge_ports([('designing.numerical_requirement', 'designing.numerical_requirement', 'additional_requirements', 'nw', 'ne'), ])
+        d.set_association_edges(multiline=True)
+        d.generate_pdf()
+
+    def test_software(self):
+        """ Examine the software package"""
+        d = BasicUML('test_output/testsw', option='uml')
+        d.set_visible_package('software')
+        d.set_association_edges(multiline=True)
+        d.generate_pdf()
+
+    def test_science(self):
+        """ Examine the science package"""
+        d = BasicUML('test_output/testsci', option='uml')
+        d.set_visible_package('science', restrict=False)
         d.set_association_edges(multiline=True)
         d.generate_pdf()
 

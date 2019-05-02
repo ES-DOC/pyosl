@@ -102,11 +102,18 @@ class BasicUML:
 
         self.__find_class_edges()
 
-    def set_visible_package(self, package, omit_classes=[]):
-        """" Choose all classes from one package"""
+    def set_visible_package(self, package, omit_classes=[], restrict=False):
+        """" Choose all classes from one package. By default this will
+        also include any base classes from other packages, and any
+        classes from other packages which are properties. These
+        can be removed in one go, using restrict=True, or handled
+        individually via omit_classes."""
 
         packages = Factory.ontology.get_package_contents(package)
-        self.set_visible_classes(packages, omit_classes=omit_classes)
+        kw = {}
+        if restrict:
+            kw = {'expand_associated': False, 'expand_base': False}
+        self.set_visible_classes(packages, omit_classes=omit_classes, **kw)
 
 
     def set_association_edges(self, multiline=False):

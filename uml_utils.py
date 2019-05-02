@@ -192,7 +192,7 @@ def uml_simple_box(klass, package_font_size=10, left_pad=3, right_pad=3, show_ba
 
     return label
 
-def uml_enum_box_label(klass, with_definitions=False, definition_nchars=60, header_nchars=90):
+def uml_enum_box_label(klass, with_definitions=False, definition_nchars=60, header_nchars=90, bw=True):
 
     """ Return an enum label, with definitions if approriate, and using
     definition_nchars for the width of the definitions, given header_nchars
@@ -200,17 +200,18 @@ def uml_enum_box_label(klass, with_definitions=False, definition_nchars=60, head
 
     template = """<<TABLE BGCOLOR="{{bg_col}}" BORDER="1" CELLBORDER="0" CELLSPACING="0">
     <TR><TD ALIGN="CENTER" BGCOLOR="{{hdr_col}}" {{colspan}}>
-    <FONT FACE="Helvetica Bold" COLOR="white">{{k._osl.ontology_class}}</FONT></TD></TR>
+    <FONT FACE="Helvetica Bold" COLOR="white">{{k._osl.class_name}}</FONT></TD></TR>
     {% if definition %}<TR><TD COLSPAN="2" BORDER="1" SIDES="B" BALIGN="LEFT">{{definition}}</TD></TR>{% endif %}
-    {% for p in k.members %}{% if definition %} <TR><TD ALIGN="LEFT" VALIGN="TOP">{{p[0]}}</TD>
+    {% for p in members %}{% if definition %} <TR><TD ALIGN="LEFT" VALIGN="TOP">{{p[0]}}</TD>
     <TD ALIGN="LEFT" BALIGN="LEFT" VALIGN="TOP">{{p[1]}}</TD></TR>{% else %}
     <TR><TD ALIGN="left" CELLPADDING="2" BORDER="0"> {{p}}</TD></TR> {% endif %} {% endfor %}
     </TABLE>>"""
 
     palette = Palette()
     colspan = {0: '', 1: 'COLSPAN="2"'}[with_definitions]
-    bg_col = palette.main('def')
-    hdr_col = palette.main('def')
+
+    bg_col = {0: palette.main('def'), 1: 'gainsboro'}[bw]
+    hdr_col = {0: palette.top('def'), 1: 'black'}[bw]
 
     definitions = with_definitions
     if with_definitions:
@@ -225,7 +226,8 @@ def uml_enum_box_label(klass, with_definitions=False, definition_nchars=60, head
             members.append(p[0])
 
     t = Template(template)
-    t.render(k=klass, bg_col=bg_col, hdr_col=hdr_col, members=members, definitions=definitions, colspan=colspan)
+    label = t.render(k=klass, bg_col=bg_col, hdr_col=hdr_col, members=members, definitions=definitions, colspan=colspan)
+    return label
 
 
 def limit_width(text, charlimit):
