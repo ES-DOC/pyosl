@@ -40,6 +40,7 @@ class BasicUML:
         self.topset = {}
         self.multiline = False
         self.baseControl={}
+        self.hidden_properties={}
 
         initial_graph_properties = {
             'splines': True,
@@ -133,6 +134,10 @@ class BasicUML:
                         self.associations.append(str(p[1]))
                         self.assoc_edges.append(
                             (c, target, p[0], p[2]))
+                        if c not in self.hidden_properties:
+                            self.hidden_properties[c] = [p[0], ]
+                        else:
+                            self.hidden_properties[c].append(p[0])
 
     def direct_edge_ports(self, edges):
 
@@ -236,7 +241,13 @@ class BasicUML:
 
         for c in self.allup:
 
-            self.G.add_node(c, label=self.allup[c].label(option=self.viewing_option, show_base=self.baseControl[c]))
+            if c in self.hidden_properties:
+                hidden_properties = self.hidden_properties[c]
+            else:
+                hidden_properties = []
+            label = self.allup[c].label(option=self.viewing_option,
+                                        omit_attributes=hidden_properties, show_base=self.baseControl[c])
+            self.G.add_node(c, label=label)
             node = self.G.get_node(c)
             for a in self.default_node_attributes:
                 node.attr[a] = self.default_node_attributes[a]
@@ -244,7 +255,6 @@ class BasicUML:
                 if self.allup[c]._osl.type == 'enum':
                     node.attr['shape'] = "tab"
                 node.attr['fillcolor'] = picker.colourise(c)
-
 
     def __add_edges(self):
 

@@ -114,7 +114,7 @@ def uml_class_box_label(klass,
             return False
         if not show_linked_properties and p[1].starts_with('linked'):
             return False
-        if [p[0]] in omit_attributes:
+        if p[0] in omit_attributes:
             return False
         return True
 

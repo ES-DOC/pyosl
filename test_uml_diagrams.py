@@ -69,7 +69,7 @@ class TestGraphCases(unittest.TestCase):
     def test_software(self):
         """ Examine the software package"""
         d = BasicUML('test_output/testsw', option='uml')
-        d.set_visible_package('software')
+        d.set_visible_package('software', restrict=True)
         d.set_association_edges(multiline=True)
         d.generate_pdf()
 
