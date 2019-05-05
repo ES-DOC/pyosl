@@ -30,8 +30,8 @@ from factory import Factory
 f = Factory()
 klass = 'designing.numerical_requirement'
 instance = f.build(klass)
-f._osl.name='Fred'
-print (f._osl.is_document, f._osl.name)
+instance._osl.name='Fred'
+print (instance._osl.is_document, instance._osl.name)
 
 ``` 
 
@@ -40,7 +40,7 @@ The underlying code here makes all classes and enums instances of the ``OntoBase
 The factory also includes a validator for checking to see if any specific
 instance is an acceptable value for a particular property attribute. This 
 validator adds some additional functionality over the standard python
-`is_instance` method, because not only can any linked_to property target
+`isinstance` method, because not only can any linked_to property target
 be an instance of `doc_reference` or the actual property_target type, but 
 any property target can also be an instance of `nil_reason`. 
 
