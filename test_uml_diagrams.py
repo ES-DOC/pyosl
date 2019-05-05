@@ -80,6 +80,13 @@ class TestGraphCases(unittest.TestCase):
         d.set_association_edges(multiline=True)
         d.generate_pdf()
 
+    def test_design(self):
+        """ Examine the design package"""
+        d = BasicUML('test_output/testdes', option='uml')
+        d.set_visible_package('designing', restrict=True, show_base_links=False)
+        d.set_association_edges(multiline=True)
+        d.fix_layout(3, ['designing.numerical_requirement_scope',])
+        d.generate_pdf()
 
 class TestPackageUML(unittest.TestCase):
 

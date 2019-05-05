@@ -42,6 +42,9 @@ class BasicUML:
         self.baseControl={}
         self.hidden_properties={}
 
+        self.singleton_width = 4
+        self.bottom_nodes = []
+
         initial_graph_properties = {
             'splines': True,
             'fontsize': 8,
@@ -61,7 +64,7 @@ class BasicUML:
         self.G = pgv.AGraph(**initial_graph_properties)
 
     def set_visible_classes(self, classes2view, expand_associated=True, expand_base=True,
-                            omit_classes=[]):
+                            show_base_links=True, omit_classes=[]):
         """
         :param classes2view: A list of classes to be shown in the diagram
         :param expand_associated: Boolean. If True, find all classes referred
@@ -93,17 +96,13 @@ class BasicUML:
             else:
                 print('%%Warning - omit_classes list includes one not found - ',c)
 
-        # Now set the default for base class visibilty in the label
-        # We set these false for a subclass when there is an edge to the superclass
-        self.baseControl = {k:True for k,v in self.allup.items()}
-
         print('removal')
         print(self.classes2view.keys())
         print(self.allup.keys())
 
-        self.__find_class_edges()
+        self.__find_class_edges(show_links=show_base_links)
 
-    def set_visible_package(self, package, omit_classes=[], restrict=False):
+    def set_visible_package(self, package, omit_classes=[], restrict=False, show_base_links=True):
         """" Choose all classes from one package. By default this will
         also include any base classes from other packages, and any
         classes from other packages which are properties. These
@@ -114,7 +113,7 @@ class BasicUML:
         kw = {}
         if restrict:
             kw = {'expand_associated': False, 'expand_base': False}
-        self.set_visible_classes(packages, omit_classes=omit_classes, **kw)
+        self.set_visible_classes(packages, omit_classes=omit_classes, show_base_links=show_base_links, **kw)
 
 
     def set_association_edges(self, multiline=False):
@@ -131,7 +130,7 @@ class BasicUML:
                     if target.startswith('linked_to'):
                         target = target[10:-1]
                     if target in self.allup:
-                        self.associations.append(str(p[1]))
+                        self.associations.append(target)
                         self.assoc_edges.append(
                             (c, target, p[0], p[2]))
                         if c not in self.hidden_properties:
@@ -159,12 +158,13 @@ class BasicUML:
 
         self.invisible_edges = relationships
 
-    def generate_dot(self, label_type='uml', nwidth=0):
+    def generate_dot(self):
         """ Generate the actual dot file """
 
         self.__add_nodes()
         self.__add_edges()
-        self.__fix_layout(nwidth)
+        self.__fix_layout()
+
         self.G.write('{}.dot'.format(self.filestem))
 
     def generate_pdf(self):
@@ -199,28 +199,38 @@ class BasicUML:
 
         return extras
 
-    def __find_class_edges(self):
+    def __find_class_edges(self, show_links=True):
 
-        """Now parse the classes we've got, and if they have
-        baseclasses in the set to be shown, collect the edges
-        and remove the baseclass decoration (via baseControl)"""
+        """Now parse the classes we've got, and if show_links
+        and they have baseclasses in the set to be shown, collect the edges
+        and remove the baseclass decoration (via baseControl)
+        """
 
-        # baseControl is initialised as True for all classes
-        for c in self.allup:
-            if self.allup[c]._osl.type == 'enum':
-                continue
-            if self.allup[c]._osl.base:
-                # we only care about the first one
-                if self.allup[c]._osl.base in self.allup:
-                    self.baseControl[c] = False
-                    self.class_edges.append((self.allup[c]._osl.base, c))
+        topset = {}
+
+        # Now set the default for base class visibilty in the label
+        # We set these false for a subclass when there is an edge to the superclass
+        def base_visible(k):
+            if not show_links: return True
+            if hasattr(k._osl, 'base'):
+                return not k._osl.base in self.allup
+            return True
+
+        self.baseControl = {k: base_visible(v) for k, v in self.allup.items()}
+
+        if show_links:
+            for c in self.allup:
+                if hasattr(self.allup[c]._osl,'base'):
+                    if self.allup[c]._osl.base:
+                        # we only care about the first one
+                        if self.allup[c]._osl.base in self.allup:
+                            self.class_edges.append((self.allup[c]._osl.base, c))
 
         # now we have to do something about ranking
         # otherwise we're all at sea.
         # so at this point, we'll get information for grapher
         # first parse, get all the top classes
 
-        topset = {}
         for e, f in self.class_edges:
             if f in topset: del topset[f]
             if e not in topset: topset[e] = {'n': 0, 'u': 0}
@@ -311,45 +321,58 @@ class BasicUML:
                 self.G.add_node(f, label='', shape='none')
             self.G.add_edge(e, f, style='invis')
 
-    def __fix_layout(self, nwidth):
+    def fix_layout(self, nwidth, bottom_nodes=[]):
 
-        """ Fix other aspects of the layout """
+        """ Fix layout by putting singletons at the bottom using nxwidth to
+          put them in a grid. This assumes that "the bottom" is defined
+          by bottom_nodes provided by the user. Some future version
+          might be able to calculate them."""
 
-        def __add_ranks(nodes, width=4):
-            """ Take as set of nodes which would otherwise have the same row rank
-            on the graph and add some invisible edges to make them flow down the
-            page rather than across the page """
-            stride = int(math.ceil(len(nodes) / float(width)))
-            rank = nodes[0:width]
-            for row in range(1, stride):
-                si = row * width
-                ei = min(si + width, len(nodes))
-                under = nodes[si:ei]
-                for i in range(len(under)):
-                    self.G.add_edge(rank[i], under[i], style='invis')
-                rank = under
+        if not bottom_nodes:
+            return NotImplementedError
 
-        # handle layouts drifting too wide
-        if nwidth !=0:
-            singletons = []
-            for n in self.G.nodes():
-                successors = self.G.successors(n)
-                predecessors = self.G.predecessors(n)
-                if len(predecessors) <= 1 and len(successors) > nwidth:
-                    fix_edges = []
-                    for nn in successors:
-                        ns = self.G.successors(nn)
-                        if ns == 0:
-                            fix_edges.append(nn)
-                    __add_ranks(successors, nwidth)
-                elif len(predecessors) == 0 and len(successors) == 0:
-                    singletons.append(n)
-
-            if len(singletons) > nwidth:
-                __add_ranks(singletons, nwidth)
+        self.bottom_nodes = bottom_nodes
+        self.singleton_width = nwidth
 
 
+    def __fix_layout(self):
+        """ Implements the fix_layouts after the rest of the graph is
+        drawn so that the singletons can be identifed."""
 
+        def add_ranks(nodes, bottom, width=4):
 
+            """ Take as set of nodes which would otherwise be singletons at the top
+            and arrange them at the bottom of the graph """
 
+            # no point constraining to less than the existing bottom width
+            width = max(len(bottom), width)
 
+            done = 0
+            for node in nodes:
+                for bn in bottom:
+                    self.G.add_edge(bn, node, style='invis')
+                    print('Adding singleton edge', bn, node)
+                done += 1
+                if done >= width:
+                    bottom = nodes[done-width:done-1]
+
+        # Handle layouts drifting too wide
+        # All we can really do automatically is find singletons
+        # and move them to the bottom - if the user has
+        # told us where the bottom is.
+
+        singletons = []
+        for n in self.G.nodes():
+            successors = self.G.successors(n)
+            predecessors = self.G.predecessors(n)
+            print('checking', n, len(successors), len(predecessors))
+            if len(predecessors) == 0 and len(successors) == 0:
+                singletons.append(n)
+
+        if singletons:
+            print ('Singletons', singletons)
+            try:
+                bottom_nodes = [self.G.get_node(n) for n in self.bottom_nodes]
+            except KeyError as e:
+                raise ValueError(e)
+            add_ranks(singletons, bottom_nodes, self.singleton_width)

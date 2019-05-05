@@ -66,7 +66,7 @@ def camel_split(c):
     return '\n'.join(words)
 
 
-def uml_bubble(klass):
+def uml_bubble(klass, **kw):
     """
     :param klass: klass for which a bubble label is required
     :param kwargs: Ignored
@@ -75,7 +75,6 @@ def uml_bubble(klass):
     name = klass._osl.class_name.replace('_', ' ')
     words = textwrap.wrap(name, 12, break_long_words=False)
     return '\n'.join(words)
-
 
 
 def uml_class_box_label(klass,
@@ -91,18 +90,18 @@ def uml_class_box_label(klass,
     an edge on the graph linking to the base class).
     """
 
-    template = """<<TABLE BGCOLOR="{{bg_col}}" BORDER="1" CELLBORDER="0" CELLSPACING="0">{% if base %}
-    <TR><TD ALIGN="right" BGCOLOR="{{hdr_col}}"><FONT FACE="Helvetica Italic" COLOR="{{hdr_fc}}">&lt;{{base}}&gt;</FONT></TD></TR>{% endif %}
-    {% if k.is_abstract %} <TR><TD ALIGN="CENTER" BGCOLOR="{{hdr_col}}">
+    template = """<<TABLE BGCOLOR="{{bg_col}}" BORDER="1" CELLBORDER="0" CELLSPACING="0">
+    {% if base %}<TR><TD ALIGN="right" BGCOLOR="{{hdr_col}}"><FONT FACE="Helvetica Italic" COLOR="{{hdr_fc}}">{{base}}</FONT></TD></TR>{% endif %}
+    {% if is_abstract %} <TR><TD ALIGN="CENTER" BGCOLOR="{{hdr_col}}">
     <FONT FACE="Helvetica Bold" COLOR="white">&lt;&lt;abstract&gt;&gt;</FONT></TD></TR>{% endif %}
     <TR><TD ALIGN="CENTER" BORDER="1" SIDES="B" BGCOLOR="{{hdr_col}}">
-    <FONT FACE="Helvetica Bold" COLOR="{{hdr_fc}}"><i>{{ontology_class}}</i></FONT></TD></TR>
+    <FONT FACE="Helvetica Bold" COLOR="{{hdr_fc}}">{{ontology_class}}</FONT></TD></TR>
     {% if inherited %}<TR><TD ALIGN="center" CELLPADDING="2" BORDER="1" SIDES="T" >
     <FONT FACE="Times-Roman Italic" POINT-SIZE="10">inherited properties</FONT></TD></TR>
-    {% for ip in inherited%}<TR><TD ALIGN="LEFT" CELLPADDING="2">{{ip}}</TD></TR>{% endfor %}{% endif %}
-    {% if properties %}<TR><TD ALIGN="center" CELLPADDING="2" BORDER="1" SIDES="T" >
-    <FONT FACE="Times-Roman Italic" POINT-SIZE="10">properties</FONT></TD></TR>
-    {% for p in properties %}<TR><TD ALIGN="LEFT" CELLPADDING="2">{{p}}</TD></TR>{% endfor %} {% endif %}
+    {% for ip in inherited%}<TR><TD ALIGN="LEFT" CELLPADDING="2">{{ip}}</TD></TR>{% endfor %} {% endif %}
+    {% if properties and inherited %}<TR><TD ALIGN="center" CELLPADDING="2" BORDER="1" SIDES="T" >
+    <FONT FACE="Times-Roman Italic" POINT-SIZE="10">properties</FONT></TD></TR>{% endif %}
+    {% for p in properties %}<TR><TD ALIGN="LEFT" CELLPADDING="2">{{p}}</TD></TR>{% endfor %} 
     {% if constraints %}<TR><TD ALIGN="center" CELLPADDING="2" BORDER="1" SIDES="T" >
     <FONT FACE="Times-Roman Italic" POINT-SIZE="10">constraints</FONT></TD></TR>
     {% for c in constraints %}<TR><TD ALIGN="LEFT" CELLPADDING="2">{{c}}</TD></TR>{% endfor %}{% endif %}
@@ -138,7 +137,10 @@ def uml_class_box_label(klass,
 
     bg_col = {0: palette.main(colour_choice), 1: 'white'}[bw]
     hdr_col = {0: palette.top(colour_choice), 1: 'black'}[bw]
-    base = klass._osl.base
+    if show_base:
+        base = klass._osl.base
+    else:
+        base = False
     hdr_fc = 'white'
 
     inherited = []
@@ -146,8 +148,8 @@ def uml_class_box_label(klass,
         inherited = ['{}: {} &#91;{}&#93;'.format(*fix(p)) for p in reversed(show_inheritance) if show(p)]
 
     constraints = []
-    if hasattr(klass, 'constraints'):
-        for c in klass.constraints:
+    if hasattr(klass._osl, 'constraints'):
+        for c in klass._osl.constraints:
             c = list(c)
             if c[1] == 'include':
                 constraints.append(' {}: {{{}'.format(c[0], c[1]))
@@ -160,17 +162,21 @@ def uml_class_box_label(klass,
                 actual_constraint = [str(b) for b in c[1:]]
                 constraints.append(' %s: {%s}' % (c[0], '='.join(actual_constraint)))
 
+    # if no properties and no constraints, add a blank line to make it look right
+    if not properties and not constraints and not inherited:
+        properties = [' ', ]
+
     t = Template(template)
 
-    label = t.render(k=klass, ontology_class=klass._osl.class_name, bg_col=bg_col, hdr_col=hdr_col,
+    label = t.render(k=klass, ontology_class=klass._osl.class_name, is_abstract=klass._osl.is_abstract, bg_col=bg_col, hdr_col=hdr_col,
                      hdr_fc=hdr_fc, base=base, properties=properties, constraints=constraints, inherited=inherited)
 
     return label
 
-def uml_simple_box(klass, package_font_size=10, left_pad=3, right_pad=3, show_base=True):
+def uml_simple_box(klass, package_font_size=10, left_pad=3, right_pad=3, **kw):
 
-    """ Simple labeled box with package name in the corner. The showbase option
-    is ignored and exists for interface compatability """
+    """ Simple labeled box with package name in the corner.
+    Extra keywords are ignored """
 
     #template = """<<font point-size="{{fontsize}}"><i>{{k.package_name}}</i></font><br align="right"/>
     #{% for w in words %}{{left}}{{w}}{{right}}<br align="center"/>{% endfor %}>"""
