@@ -173,6 +173,7 @@ def uml_class_box_label(klass,
 
     return label
 
+
 def uml_simple_box(klass, package_font_size=10, left_pad=3, right_pad=3, **kw):
 
     """ Simple labeled box with package name in the corner.

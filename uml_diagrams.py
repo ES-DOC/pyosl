@@ -46,10 +46,12 @@ class BasicUML:
         self.bottom_nodes = []
 
         initial_graph_properties = {
+            'strict': False,
             'splines': True,
             'fontsize': 8,
             'directed': True,
-            'ranksep': 0.3}
+            'ranksep': 0.3,
+            }
 
         for k in kwargs:
             initial_graph_properties[k] = kwargs[k]
@@ -87,7 +89,6 @@ class BasicUML:
                 for k, v in associated.items():
                     if k not in self.allup and k not in Factory.ontology.builtins:
                         self.allup[k] = v
-                        print('..adding {} for {}'.format(k,c))
 
         # Now remove anything we don't want to see
         for c in omit_classes:
@@ -95,10 +96,6 @@ class BasicUML:
                 del self.allup[c]
             else:
                 print('%%Warning - omit_classes list includes one not found - ',c)
-
-        print('removal')
-        print(self.classes2view.keys())
-        print(self.allup.keys())
 
         self.__find_class_edges(show_links=show_base_links)
 
@@ -125,18 +122,25 @@ class BasicUML:
 
         for c in self.allup:
             if hasattr(self.allup[c]._osl, 'properties'):
-                for p in self.allup[c]._osl.properties:
-                    target = p[1]
-                    if target.startswith('linked_to'):
-                        target = target[10:-1]
-                    if target in self.allup:
-                        self.associations.append(target)
-                        self.assoc_edges.append(
-                            (c, target, p[0], p[2]))
-                        if c not in self.hidden_properties:
-                            self.hidden_properties[c] = [p[0], ]
-                        else:
-                            self.hidden_properties[c].append(p[0])
+                self.hidden_properties[c] = self.__get_hidden_properties(c, add_edges=True)
+
+    def __get_hidden_properties(self, c, add_edges=True):
+        """ Get properties to hide (because they exist as
+        links on the diagram, and add edges if appropriate.
+        """
+        hidden_properties=[]
+        for p in self.allup[c]._osl.properties:
+            target = p[1]
+            if target.startswith('linked_to'):
+                target = target[10:-1]
+            if target in self.allup:
+                if add_edges:
+                    self.associations.append(target)
+                    self.assoc_edges.append(
+                        (c, target, p[0], p[2]))
+                hidden_properties.append(p[0])
+        return hidden_properties
+
 
     def direct_edge_ports(self, edges):
 
@@ -255,8 +259,22 @@ class BasicUML:
                 hidden_properties = self.hidden_properties[c]
             else:
                 hidden_properties = []
+
+            inherited = []
+            if self.baseControl[c]:
+                # the base is not directly linked ...
+                if self.allup[c]._osl.base not in self.allup:
+                    # It's not on the diagram either, so
+                    # we should show inherited properties that
+                    # are not otherwise present as links.
+                    # start by just showing them ...
+                    # FIXME, remove properties for any links present
+                    inherited = self.allup[c]._osl.inherited_properties
+
             label = self.allup[c].label(option=self.viewing_option,
-                                        omit_attributes=hidden_properties, show_base=self.baseControl[c])
+                                        omit_attributes=hidden_properties,
+                                        show_inherited=inherited,
+                                        show_base=self.baseControl[c])
             self.G.add_node(c, label=label)
             node = self.G.get_node(c)
             for a in self.default_node_attributes:
@@ -302,16 +320,21 @@ class BasicUML:
                 # attempt to find a likely distance at which cardinality labels don't overlap edges
                 # using distance and angle
                 # distance, angle = 3., 30.
+                edge_key = 'edge_{}'.format(eindex)
+                edge_key = None
+                # we can't currently use edge keys, see https://github.com/pygraphviz/pygraphviz/issues/162
                 if composition:
-                    self.G.add_edge(e, f, 'named%s' % str(eindex), label=edge_label, headlabel=edge_head_label,
+                    self.G.add_edge(e, f, edge_key, label=edge_label, headlabel=edge_head_label,
                                labeldistance=2.2, labelfloat=False, labelangle=45., arrowtail='diamond',
                                arrowhead='vee', dir='both', headport=headport, tailport=tailport)
                 else:
-                    self.G.add_edge(e, f, 'named%s' % str(eindex), label=edge_label, headlabel=edge_head_label,
+                    self.G.add_edge(e, f, edge_key, label=edge_label, headlabel=edge_head_label,
                                labeldistance=2.2, labelfloat=False, labelangle=30., arrowhead='vee',
                                headport=headport, tailport=tailport)
                 # edge_head_label = ' %s\n%s' % (m, g)
                 # G.add_edge(e, f, 'named%s'%str(eindex), headlabel=edge_head_label)
+                #print(edge_key, e, f, edge_label.replace('\n', ' '))
+                #print(len(self.G.edges(keys=True)))
 
         # now the invisible edges, if any:
         for e, f in self.invisible_edges:
@@ -365,12 +388,10 @@ class BasicUML:
         for n in self.G.nodes():
             successors = self.G.successors(n)
             predecessors = self.G.predecessors(n)
-            print('checking', n, len(successors), len(predecessors))
             if len(predecessors) == 0 and len(successors) == 0:
                 singletons.append(n)
 
         if singletons:
-            print ('Singletons', singletons)
             try:
                 bottom_nodes = [self.G.get_node(n) for n in self.bottom_nodes]
             except KeyError as e:

@@ -22,12 +22,11 @@ class TestGraphCases(unittest.TestCase):
 
     def test_makediagrams(self):
         """ Simply makes activity diagrams """
-        d = BasicUML('test_output/testing', option='bubble')
+        d = BasicUML('test_output/testing', option='box')
         d.set_visible_classes(['designing.numerical_experiment', ], expand_base=False)
         d.set_association_edges(multiline=True)
+        d.direct_edge_ports([('designing.project','designing.project','sub_projects','s','s'),])
         d.generate_pdf()
-        # TODO currently not showing multiple links that exist ... only showing one if to the same target
-        #  in this case governing mips and related mips
 
     def test_makediagrams_and_omit(self):
         """ Simply makes activity diagrams """
@@ -35,8 +34,6 @@ class TestGraphCases(unittest.TestCase):
         d.set_visible_classes(['designing.numerical_experiment', ], expand_base=False, omit_classes=['designing.project',])
         d.set_association_edges(multiline=True)
         d.generate_pdf()
-        # TODO currently not showing multiple links that exist ... only showing one if to the same target
-        #  in this case governing mips and related mips
 
     def test_makediagrams_and_omit_BOX(self):
         """ Simply makes activity diagrams """
@@ -44,8 +41,6 @@ class TestGraphCases(unittest.TestCase):
         d.set_visible_classes(['designing.numerical_experiment', ], expand_base=False, omit_classes=['designing.project',])
         d.set_association_edges(multiline=True)
         d.generate_pdf()
-        # TODO currently not showing multiple links that exist ... only showing one if to the same target
-        #  in this case governing mips and related mips
 
     def test_explain_requirements(makedot=False):
         """ A diagram to explain numerical requirements. Exercises direct_layout and direct_edge_ports"""
