@@ -49,8 +49,11 @@ The enum vocabulary lists are similarly defined by functions which return dictio
 which include three attributes: 
 
 * **type**: enum
-* **is\_open**: boolean, \editorial{explain}
+* **is\_open**: boolean
 * **members**: a list of terms and definitions
+
+If **is\_open** attribute indicates that users may substitute their own
+values rather than be required to select from the enumeration.
 
 
 #### Property Definitions and Constraints

@@ -68,8 +68,18 @@ class TestOntoBase(unittest.TestCase):
         self.assertTrue(self.f.core_validator(self.kbb, 'designing.numerical_requirement'))
         self.assertFalse(self.f.core_validator(self.kbb, 'platform.platform'))
 
-
-
+    def test_enum_validation(self):
+        """ make sure only appropriate values are assigned to an enum value. There
+        are three interesting cases:
+        (1) assigning an acceptable value to any kind of enum,
+        (2) assigning a value from outside to a closed enum which should raise an error, and
+        (3) assigning a value from outside to an open enum which is fine.
+        """
+        # build a few things to get them in the known subclasses
+        a, b = self.f.build('shared.role_code'), self.f.build('activity.conformance_type')
+        self.assertTrue(self.f.core_validator('point of contact', 'shared.role_code'))
+        self.assertFalse(self.f.core_validator('aviator', 'shared.role_code'))
+        self.assertTrue(self.f.core_validator('Not on your nelly', 'activity.conformance_type'))
 
 
 if __name__ == "__main__":

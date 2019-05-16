@@ -196,6 +196,13 @@ class Factory:
                 return value.type == target
             return NotImplementedError
         elif target in Factory.known_subclasses:
+            if not Factory.known_subclasses[target]._osl.is_document:
+                if isinstance(value, str):
+                    if Factory.known_subclasses[target]._osl.is_open:
+                        return True
+                    else:
+                        return value in [x[0] for x in Factory.known_subclasses[target]._osl.members]
+                return False
             return isinstance(value, Factory.known_subclasses[target])
         else:
             return False
