@@ -17,7 +17,7 @@ class TestGraphCases(unittest.TestCase):
         attributes (i.e. it is a proper subclass)."""
 
         e = Factory.build('designing.numerical_experiment')
-        assert e._osl.type_key == 'cim.designing.numerical_experiment'
+        assert e._osl.type_key == 'cim.2.designing.numerical_experiment'
         assert e.label() == 'numerical\nexperiment'
 
     def test_makediagrams(self):

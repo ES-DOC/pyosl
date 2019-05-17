@@ -57,7 +57,7 @@ class Ontology:
 
     def get_package_from_key(self, key):
         my_key = key.split('.')
-        options = {1:0, 2:0, 3:1}
+        options = {1: 0, 2: 0, 3: 1}
         if len(my_key) <= 3:
             return my_key[options[len(my_key)]]
         else:
@@ -93,7 +93,7 @@ class Ontology:
                 constructor['base_hierarchy'] = base_hierarchy
 
                 # it is useful to inject a complete description of the key as the type name
-                constructor['type_key'] = '{}.{}'.format(self.name, k)
+                constructor['type_key'] = '{}.{}.{}'.format(self.name, self.version, k)
                 constructor['ontology_name'] = self.name
                 constructor['package'], constructor['class_name'] = k.split('.')
 
@@ -113,8 +113,6 @@ class Ontology:
                     constructor['inherited_properties'] = []
 
                 constructor = meta_fix(constructor)
-
-
 
         # now we have nice tidy constructors, lets' go through and build off base classes
         for p in self.constructors:
@@ -141,7 +139,6 @@ class Ontology:
             result += str(k)+': '+', '.join([k.split('.')[-1] for k in p.keys()])+'\n'
         result += '======='
         return result
-
 
 class Factory:
 
@@ -191,9 +188,12 @@ class Factory:
             if isinstance(value, type(Factory.known_subclasses[target_type]())):
                 return True
             else:
-                if not isinstance(value, Factory.known_subclasses['shared.doc_reference']):
+                if not isinstance(value, type(Factory.known_subclasses['shared.doc_reference']())):
                     return False
-                return value.type == target
+                tmp = value.type == target_type
+                if not tmp:
+                    print ('wait')
+                return tmp
         elif target in Factory.known_subclasses:
             if Factory.known_subclasses[target]._osl.type == 'enum':
                 if isinstance(value, str):
@@ -202,7 +202,7 @@ class Factory:
                     else:
                         return value in [x[0] for x in Factory.known_subclasses[target]._osl.members]
                 return False
-            return isinstance(value, Factory.known_subclasses[target])
+            return isinstance(value, type(Factory.known_subclasses[target]()))
         else:
             return False
 
@@ -215,6 +215,8 @@ class Factory:
             return Factory.ontology.builtins[klass_name]
 
         # needed for proper usage of nearly any class, so just build them now.
+        # FIXME: We do this everytime ... which must be wasteful, even if
+        # it is only the loop over minimal to find out all classes are done.
         if Factory.descriptor:
             # we probably need all the classes, so let's just build them all now
             minimal = Factory.ontology.klasses

@@ -18,6 +18,15 @@ class TestBase(unittest.TestCase):
         self.sp3 = o.build('designing.simulation_plan')
         self.e = o.build('designing.numerical_experiment')
         self.dr = o.build('shared.doc_reference')
+        self.o = o
+
+    def test_class_isolation(self):
+        """ It looks like assigning a variable to an instance
+        is also assigning it to the class ... something is
+        wrong. """
+        x = str(self.sp.name)
+        self.sp.name = 'a'
+        assert str(self.sp.name) == x
 
 
     def test_basic_attributes(self):
@@ -53,12 +62,24 @@ class TestBase(unittest.TestCase):
         self.sp.will_support_experiments = [self.e]
 
     def test_doc_reference_behaviour(self):
-        pass
+        """ some horrendous bug in the factory """
+        alist = []
+        for a in ['fred','joe']:
+            p = self.o.build('shared.doc_reference')
+            p.name = a
+            p.type = 'shared.party'
+            alist.append(p)
+        r = self.o.build('shared.responsibility')
+        r.role_code = 'point of contact'
+        r.parties = alist
+        assert self.o.known_subclasses['shared.doc_reference'].name != 'joe'
 
     def test_document_metadata(self):
         self.assertFalse(hasattr(self.dr, '_meta'))
         self.assertTrue(hasattr(self.sp, '_meta'))
         self.assertTrue(Factory.core_validator(self.sp._meta, 'shared.doc_meta_info'))
+
+
 
 
 if __name__ == "__main__":

@@ -4,7 +4,7 @@ from pathlib import Path
 from mp_base import Base
 from mp_property import Property, PropertyDescriptor
 from factory import Factory, Ontology
-from esd_decoder import esd_decoder
+from esd_decoder import esd_decoder, de_camel_attribute
 import json
 
 # make a factory to use in the test cases
@@ -18,6 +18,12 @@ class TestESDread(unittest.TestCase):
 
     def setUp(self):
         self.instances = Path.cwd().glob('test_input/*')
+
+    def test_decamel(self):
+        s1 = 'responsibleParties'
+        s2 = 'responsible_parties'
+        assert de_camel_attribute(s1) == s2
+
 
     def test_read(self):
         for x in self.instances:
