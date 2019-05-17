@@ -191,12 +191,11 @@ class Factory:
             if isinstance(value, type(Factory.known_subclasses[target_type]())):
                 return True
             else:
-                if not isinstance(value, type(Factory.known_subclasses['shared.doc_reference'])):
+                if not isinstance(value, Factory.known_subclasses['shared.doc_reference']):
                     return False
                 return value.type == target
-            return NotImplementedError
         elif target in Factory.known_subclasses:
-            if not Factory.known_subclasses[target]._osl.is_document:
+            if Factory.known_subclasses[target]._osl.type == 'enum':
                 if isinstance(value, str):
                     if Factory.known_subclasses[target]._osl.is_open:
                         return True

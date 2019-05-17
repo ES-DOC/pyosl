@@ -13,7 +13,7 @@ class Base(OntoBase):
     def __str__(self):
         if hasattr(self._osl, 'pstr'):
             values = [getattr(self, s) for s in self._osl.pstr[1]]
-            return self._osl.pstr[0].format(values)
+            return self._osl.pstr[0].format(*values)
         else:
             return super().__str__()
 
