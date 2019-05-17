@@ -19,6 +19,7 @@ class TestBase(unittest.TestCase):
         self.e = o.build('designing.numerical_experiment')
         self.dr = o.build('shared.doc_reference')
 
+
     def test_basic_attributes(self):
         assert hasattr(self.sp, 'expected_model')
 

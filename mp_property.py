@@ -40,7 +40,7 @@ class PropertyList (list):
 class Property:
     """ Provides a class property """
 
-    validator = lambda x,y : True
+    validator = lambda x, y: True
 
     @staticmethod
     def set_validator(validator):
@@ -79,7 +79,7 @@ class Property:
             if Property.validator(value, self._target):
                 self.__value = value
             else:
-                raise ValueError('Attempt to set inconsistent type on property {}'.format(self._name))
+                raise ValueError('Attempt to set inconsistent type {} on property {} (expected {})'.format(type(value), self._name, self._target))
 
     def __get(self):
         return self.__value
