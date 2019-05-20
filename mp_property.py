@@ -100,7 +100,7 @@ class Property:
         # does it respect cardinality?
         if self._cardinality == '0.0':
             return ValueError('Attempt to assign value to property with cardinality 0.0 [{}]'.format(self._name))
-        elif self._cardinality not in ['0.1','1.1']:
+        elif self._cardinality not in ['0.1', '1.1']:
             if not isinstance(value, list):
                 raise ValueError('Attempt to set single value to list type')
             # check types of list members

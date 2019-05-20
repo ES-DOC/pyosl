@@ -9,12 +9,10 @@ class Property:
 
 
 class Descriptor:
-    """ Toy Descriptor showing how we use the
-    instance dict to park the property, which
-    in the real deal, will hold all the validation
-    magic. We could of course simplify things
-    by putting the validation magic in the
-    descriptor."""
+    """
+    Toy Descriptor showing how we use the instance dict to park the property, which
+    in the real deal, will hold all the validation magic.
+    """
 
     def __init__(self, label):
         self.label = label
@@ -44,12 +42,13 @@ class TestBasic(unittest.TestCase):
         g.y = 6
         assert f.x == 5
         assert g.x == None
-        assert f.x*g.y == 30
+        assert f.x * g.y == 30
 
     def test_listiness(self):
         g = Foo()
         g.append(1)
-        print (g)
+        print(g)
+
 
 if __name__ == "__main__":
     unittest.main()

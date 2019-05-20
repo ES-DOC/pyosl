@@ -1,5 +1,6 @@
 from collections import OrderedDict
 from loader import NAME, VERSION, DOCUMENTATION, PACKAGES
+from errors import DocRefNoType
 
 
 def meta_fix(constructor):
@@ -190,10 +191,10 @@ class Factory:
             else:
                 if not isinstance(value, type(Factory.known_subclasses['shared.doc_reference']())):
                     return False
-                tmp = value.type == target_type
-                if not tmp:
-                    print ('wait')
-                return tmp
+                if value.type:
+                    return value.type == target_type
+                else:
+                    raise DocRefNoType('Doc_Reference used in assignment does not have a target type')
         elif target in Factory.known_subclasses:
             if Factory.known_subclasses[target]._osl.type == 'enum':
                 if isinstance(value, str):

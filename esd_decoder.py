@@ -1,6 +1,7 @@
 # Decode json from the pyesdoc family
 # Based on Mark Greenslade's pyesdoc/_codecs/dictionary/decoder.py
 import re
+from errors import DocRefNoType
 
 def translate_type_to_osl_from_esd(doc_type):
     """ Translate from esd document types (e.g. 'cim2.designing.EnsembleRequirement)
@@ -33,7 +34,16 @@ def _decode(factory, content, klass):
                 setattr(instance, name, metav)
             else:
                 newv = esd_decoder(factory, value)
-                setattr(instance, name, newv)
+                try:
+                    setattr(instance, name, newv)
+                except DocRefNoType:
+                    # FIXME: Raise an issue in pyesdoc about this, the serialisaiton
+                    # should include an author type.
+                    if klass == 'shared.doc_meta_info':
+                        newv.type = 'shared.party'
+                        setattr(instance, name, newv)
+                    else:
+                        raise
         elif isinstance(value, list):
             alist = []
             for v in value:
@@ -46,11 +56,6 @@ def _decode(factory, content, klass):
             if instance._osl.type_key == 'cim.2.shared.doc_reference':
                 if name == 'type':
                     value = translate_type_to_osl_from_esd(value)
-                    # following handles pyesdoc serialisation behaviour
-                    # for the author case in a doc_meta_info ...
-                    if value == "":
-                        print('Investigate me')
-                        value = 'author'
             setattr(instance, name, value)
     return instance
 
