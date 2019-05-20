@@ -1,24 +1,52 @@
-
 class PropertyDescriptor:
 
-    """ This python descriptor applied to the class ensures
-    that class instances use the Property type for all the
-    osl ontology attributes. """
+    """
+    This python descriptor applied to the class ensures that instances use the Property type for all the
+    osl ontology attributes.
+    """
     # Useful explanations of how this works:
-    # https://stackoverflow.com/questions/44548995/how-to-add-and-bind-descriptors-dynamically-in-pytho
+    # https://stackoverflow.com/questions/44548995/how-to-add-and-bind-descriptors-dynamically-in-python
+    # https://nbviewer.jupyter.org/urls/gist.github.com/ChrisBeaumont/5758381/raw/descriptor_writeup.ipynb
 
     def __init__(self, definition):
-        self.__value = Property(definition)
+        """
+        Initialise with the property definition, and create a label so we can ensure we use the instance dictionary
+        to store state. Using a weak dictionary doesn't work because we have non-hashable instances.
+        """
+        self.definition = definition
+        self.label = definition[0]
 
     def __set__(self, instance, value):
-        self.__value.value = value
+        """
+        Set value of the property
+        """
+        p = self.__myget(instance)
+        p.value = value
 
     def __get__(self, instance, owner):
-        return self.__value.value
+        """
+        Get value of the instance property. There i no value for a class instance (or more correctly,
+        there had better not be, since we have no way to do it with this methodology.
+        """
+        if instance:
+            return self.__myget(instance).value
+        else:
+            return 'Class variable not initialised'
+
+    def __myget(self, instance):
+        """
+        Slightly more efficient form than building the Property when it already exists
+        (as would happen if we used the get(x, default) API).
+        """
+        if self.label not in instance.__dict__:
+            instance.__dict__[self.label] = Property(self.definition)
+        return instance.__dict__[self.label]
 
 
 class PropertyList (list):
-    """ Lightweight type checking"""
+    """
+    Lightweight type checking
+    """
     # TODO intercept the other methods if there is a case for it.
 
     def __init__(self, target, value=[]):
@@ -38,7 +66,9 @@ class PropertyList (list):
 
 
 class Property:
-    """ Provides a class property """
+    """
+    Provides a class property
+    """
 
     validator = lambda x, y: True
 
@@ -50,7 +80,9 @@ class Property:
         Property.validator = validator
 
     def __init__(self, definition):
-        """ Initialise with a property tuple from the schema definition. """
+        """
+        Initialise with a property tuple from the schema definition.
+        """
         # In practice initialising the doc string isn't very useful, since
         # it appears that there is no way to get to it, but we do it anyway
         # in case we find a way to do it in the future.
@@ -107,6 +139,3 @@ class Property:
         return '{}: {}'.format(self.name, str(self.value))
 
     value = property(__get, __set)
-
-
-

@@ -26,8 +26,7 @@ class TestBase(unittest.TestCase):
         wrong. """
         x = str(self.sp.name)
         self.sp.name = 'a'
-        assert str(self.sp.name) == x
-
+        assert x == str(self.sp2.name)
 
     def test_basic_attributes(self):
         assert hasattr(self.sp, 'expected_model')
@@ -78,8 +77,6 @@ class TestBase(unittest.TestCase):
         self.assertFalse(hasattr(self.dr, '_meta'))
         self.assertTrue(hasattr(self.sp, '_meta'))
         self.assertTrue(Factory.core_validator(self.sp._meta, 'shared.doc_meta_info'))
-
-
 
 
 if __name__ == "__main__":

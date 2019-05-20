@@ -237,7 +237,7 @@ class Factory:
 
         candidate = Factory.known_subclasses[klass_name]()
 
-        if hasattr(candidate,'is_abstract'):
+        if hasattr(candidate, 'is_abstract'):
             if candidate._osl.is_abstract:
                 raise ValueError("Attempt to instantiate abstract class")
         return candidate
