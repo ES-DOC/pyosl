@@ -31,9 +31,10 @@ def _decode(factory, content, klass):
         if isinstance(value, dict):
             if name == '_meta':
                 metav = _decode(factory, value, 'shared.doc_meta_info')
+                metav.type = translate_type_to_osl_from_esd(metav.type)
                 setattr(instance, name, metav)
             else:
-                newv = esd_decoder(factory, value)
+                newv = esd_decode(factory, value)
                 try:
                     setattr(instance, name, newv)
                 except DocRefNoType:
@@ -48,7 +49,7 @@ def _decode(factory, content, klass):
             alist = []
             for v in value:
                 if isinstance(v, dict):
-                    alist.append(esd_decoder(factory, v))
+                    alist.append(esd_decode(factory, v))
                 else:
                     alist.append(v)
             setattr(instance, name, alist)
@@ -60,7 +61,7 @@ def _decode(factory, content, klass):
     return instance
 
 
-def esd_decoder(factory, json_dict):
+def esd_decode(factory, json_dict):
     """ Decodes json esdoc content into a pyosl instance"""
 
     try:

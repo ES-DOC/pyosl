@@ -49,5 +49,8 @@ respect the pyosl property definitions in the source ontology. These instances c
 throughout the tool chain, especially when they are further enhanced to support
 [serialisation and deserialisation](07_serialisation.md).
 
+(_Note for maintainers:_ A description of how descriptors are used to bind the properties can be found [here](08_python fundamentals).
+)
+
 
 
