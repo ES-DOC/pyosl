@@ -9,6 +9,14 @@ A full
 example of why one might want to use descriptors (and an explanation of some of the details we use)
 can be found in an excellent 
 [online post by Chris Beaumont](https://nbviewer.jupyter.org/urls/gist.github.com/ChrisBeaumont/5758381/raw/descriptor_writeup.ipynb).
+However, the bottom line is that we use properties to manage access to class attributes, and we use descriptors 
+to manage properties in a reusable way.
+
+
+Properties provide a way of ensuring that any attempt to change the state of an instance attribute 
+(e.g. for a class instance, `f`, something like`f.x=2` ) have to go 
+through a `__set` method, which can enforce any type of validation on the right hand side (e.g. to
+make sure `x` can only be an integer).
 
 
 A small working example of how we use descriptors appears in [this python file](python_underpinning.py),
@@ -16,11 +24,6 @@ which demonstrates how we use static methods to bind descriptors for attributes 
 class definition (`Foo`), and use the attribute labels (again, in this case `x` and `y`) as arguments
 in the descriptor set up so that the properties can be inserted into the instance dictionaries using
 their attribute labels.
-
-Properties provide a way of ensuring that any attempt to change the state of an instance attribute 
-(e.g. for a class instance, `f`, something like`f.x=2` ) have to go 
-through a `__set` method, which can enforce any type of validation on the right hand side (e.g. to
-make sure `x` can only be an integer).
 
 
 We could probably avoid the use of properties given we have descriptors, but for now, we use them to
