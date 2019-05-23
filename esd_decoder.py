@@ -3,6 +3,7 @@
 import re
 from errors import DocRefNoType
 
+
 def translate_type_to_osl_from_esd(doc_type):
     """ Translate from esd document types (e.g. 'cim2.designing.EnsembleRequirement)
     to pyosl document types (e.g 'cim.designing.ensemble_requirement').
@@ -38,7 +39,7 @@ def _decode(factory, content, klass):
                 try:
                     setattr(instance, name, newv)
                 except DocRefNoType:
-                    # FIXME: Raise an issue in pyesdoc about this, the serialisaiton
+                    # FIXME: Raise an issue in pyesdoc about this, the serialisation
                     # should include an author type.
                     if klass == 'shared.doc_meta_info':
                         newv.type = 'shared.party'
@@ -66,6 +67,7 @@ def esd_decode(factory, json_dict):
 
     try:
         doc_type = json_dict['meta']['type']
+
     except KeyError:
         print(json_dict)
         raise KeyError('Document from pyesdoc has invalid type key.')

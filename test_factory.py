@@ -57,6 +57,9 @@ class TestOntoBase(unittest.TestCase):
         self.f = Factory()
         self.k = self.f.build('designing.numerical_experiment')
         self.kbb = self.f.build('designing.temporal_constraint')
+        self.nr = self.f.build('designing.numerical_requirement')
+        self.dr = self.f.build('shared.doc_reference')
+
 
     def test_fundamentals(self):
         assert hasattr(self.k, '_osl')
@@ -67,6 +70,16 @@ class TestOntoBase(unittest.TestCase):
     def test_core_validator(self):
         self.assertTrue(self.f.core_validator(self.kbb, 'designing.numerical_requirement'))
         self.assertFalse(self.f.core_validator(self.kbb, 'platform.platform'))
+
+    def test_core_validator_subclass(self):
+        """ Subclass test"""
+        self.assertTrue(self.f.core_validator(self.kbb, 'designing.numerical_requirement'))
+
+    def test_core_validator_reference(self):
+        """ Doc Reference test"""
+        self.dr.name = 'fred'
+        self.dr.type = 'designing.numerical_requirement'
+        self.assertTrue(self.f.core_validator(self.dr, 'linked_to(designing.numerical_requirement)'))
 
     def test_enum_validation(self):
         """ make sure only appropriate values are assigned to an enum value. There

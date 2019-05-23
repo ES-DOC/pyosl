@@ -1,6 +1,7 @@
 from collections import OrderedDict
 from loader import NAME, VERSION, DOCUMENTATION, PACKAGES
 from errors import DocRefNoType
+from anacronisms import group_hack
 
 
 def meta_fix(constructor):
@@ -69,6 +70,21 @@ class Ontology:
         if p not in self.constructors:
             raise ValueError('Unrecognised package - ', p)
         return [k for k, c in self.constructors[p].items()]
+
+    def check_and_strip(self, key):
+        """ Given a key, if just a naked package.klass, return, otherwise
+        check ontology and version, then return the naked package.klass"""
+        info = key.split('.')
+        if len(info) == 2:
+             return key
+        elif len(info) == 4:
+            try:
+                assert (info[0], info[1]) == (self.name, self.version)
+            except:
+                raise ValueError(f'Ontology {self.name}.{self.version} cannot build {key}')
+            return '.'.join(info[2:])
+        else:
+            raise ValueError(f'Unrecognised key {key}')
 
     def __initialise_classes(self):
         """ Initialise the complete set of available classes. This is effectively a class factory"""
@@ -182,7 +198,15 @@ class Factory:
         if isinstance(value, type(Factory.known_subclasses['shared.nil_reason']())):
             return True
         if target in Factory.ontology.builtins:
-            return isinstance(value, Factory.ontology.builtins[target])
+            ok = isinstance(value, Factory.ontology.builtins[target])
+            if not ok and target == 'bool':
+                """ Handle duck typing booleans as a special case."""
+                try:
+                    x = bool(value)
+                    ok = True
+                except:
+                    pass
+            return ok
         elif target.startswith('linked_to'):
             # need to handle doc references and their internal type
             target_type = target[10:-1]
@@ -192,7 +216,7 @@ class Factory:
                 if not isinstance(value, type(Factory.known_subclasses['shared.doc_reference']())):
                     return False
                 if value.type:
-                    return value.type == target_type
+                    return isinstance(Factory.build(group_hack(value.type)), type(Factory.build(target_type)))
                 else:
                     raise DocRefNoType('Doc_Reference used in assignment does not have a target type')
         elif target in Factory.known_subclasses:
@@ -211,6 +235,9 @@ class Factory:
     def build(klass_name):
 
         """ Builds a specific classs and adds it to the classes known to the factory. """
+
+        klass_name = group_hack(klass_name)
+        klass_name = Factory.ontology.check_and_strip(klass_name)
 
         if klass_name in Factory.ontology.builtins:
             return Factory.ontology.builtins[klass_name]

@@ -53,8 +53,7 @@ class PropertyList (list):
         self._target = target
         for e in value:
             if not Property.validator(e, self._target):
-                raise ValueError('List element [{}, type {}] is not of type {}'.format(
-                    e, type(e), type(self._target)))
+                raise ValueError(f'List element [{e}, type {type(e)}] is not of type {self._target}')
         list.__init__(self, value)
 
     def append(self, value):
