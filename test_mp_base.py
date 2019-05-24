@@ -79,5 +79,14 @@ class TestBase(unittest.TestCase):
         self.assertTrue(Factory.core_validator(self.sp._meta, 'shared.doc_meta_info'))
 
 
+    def test_docstring(self):
+
+        help(self.sp.name)
+        # nb: can't do the next line without accessing .name somehow first ... so it will appear in the dictionary!
+        print(self.sp.__dict__['name']._cardinality)
+        self.sp.__dict__['name'].__doc__='test me'
+        help(self.sp.name)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -92,6 +92,9 @@ class Property:
             self.__value = PropertyList(self._target, [])
         self._initialised = False
 
+        #FIXME: This doesn't work.
+        self.__doc__ = definition
+
     def __set(self, value):
 
         # TODO include support for a one time initialisation of something that cannot be changed.
@@ -113,6 +116,7 @@ class Property:
                 raise ValueError('Attempt to set inconsistent type {} on property {} (expected {})'.format(type(value), self._name, self._target))
 
     def __get(self):
+        """ I want to see this and dynamically set it, but I can't right now """
         return self.__value
 
     def append(self, value):
@@ -135,6 +139,8 @@ class Property:
         return not self == other
 
     def __str__(self):
-        return '{}: {}'.format(self.name, str(self.value))
+        if self.value:
+            return '{}: {}'.format(self.name, str(self.value))
+        return self.value
 
     value = property(__get, __set)
