@@ -28,7 +28,12 @@ def cheap_validator(value, target):
     """ Checks that value is of type target.
     This validator only knows about integers and strings, for this toy example.
     """
-    return isinstance(value, {'int':int, 'str': str}[target])
+    try:
+        return isinstance(value, {'int':int, 'str': str}[target])
+    except KeyError:
+        print(f'Cheap validator ignores {target}')
+        raise
+
 
 
 class Factory:
