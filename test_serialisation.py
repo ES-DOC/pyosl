@@ -6,7 +6,7 @@ from mp_property import Property, PropertyDescriptor
 from factory import Factory, Ontology
 from esd_decoder import esd_decode, de_camel_attribute
 from esd_encoder import esd_encode
-from osl_encoder import osl_encode2json
+from osl_encoder import osl_encode2json, bundle_instance
 from osl_decoder import osl_decode_json
 
 import json
@@ -85,6 +85,19 @@ class TestOSLroundtrip(unittest.TestCase):
                 new_json_version = osl_encode2json(python_version)
                 new_python_version = osl_decode_json(FACTORY, new_json_version)
                 assert python_version == new_python_version
+
+    def test_bundle(self):
+        author = FACTORY.new_document('shared.party')
+        document = FACTORY.new_document('designing.project', author)
+        author.name = 'Bryan'
+        document.name = 'My Big Fat Experiment'
+        docs = bundle_instance(document)
+        self.assertEqual(len(docs), 2, 'Wrong number of documents returned')
+        for doc in docs:
+            odoc = osl_decode_json(FACTORY,doc)
+            print(odoc)
+
+
 
 
 if __name__=="__main__":

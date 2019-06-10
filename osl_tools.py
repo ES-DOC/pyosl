@@ -4,16 +4,8 @@ from factory import Factory
 from copy import deepcopy
 
 
-def volume(value, units):
-    v = Factory.build('platform.storage_volume')
-    v.volume = value
-    v.units = units
-    return v
-
-
 def named_build(klass, name):
     """ Minimise effort for building a class """
-
     k = Factory.build(klass)
     k.name = name
     return k
@@ -41,12 +33,10 @@ def calendar_period(sdate, edate):
 def osl_fill_from(self, other):
     """ FIll non-present-attributes in self, from other"""
     for p in self._osl.properties:
-        if not getattr(self,p[0]):
-            setattr(self, p[0], deepcopy(getattr(other, p[0])))
-    return self
-
+        conditional_copy(self, other, p[0])
 
 def online(url, name, **kw):
+    """ Convenience class for building a shared online reference"""
     k = Factory.build('shared.online_resource')
     k.linkage = url
     k.name = name
@@ -54,8 +44,43 @@ def online(url, name, **kw):
         setattr(k, key, kw[val])
     return k
 
+
 def numeric_value(number, units):
+    """ Convenience class for building a numeric instance"""
     k = Factory.build('shared.numeric')
     k.value = number
     k.units = units
     return k
+
+
+def conditional_copy(self, other, key, altkey=None):
+    """If [[self]] has attribute [[key]] and if
+    the value of that attribute is not None, assign
+    it to [[other]], using [[altkey]] if present
+    otherwise [[key]] for the attribute name"""
+    if hasattr(self, key):
+        possible = getattr(self,key)
+        if possible:
+            if altkey:
+                setattr(other, altkey, deepcopy(possible))
+            else:
+                setattr(other, key, deepcopy(possible))
+
+
+def get_reference_for(document):
+    """ Returns a doc_reference instance for a document"""
+    k = Factory.build('shared.doc_reference')
+    for key in ('name', 'canonical_name'):
+        conditional_copy(document, k, key)
+    if not getattr(k, 'canonical_name'):
+        if getattr(k,'name'):
+            setattr(k,'canonical_name',getattr(k,'name'))
+    for key in ('version',):
+        conditional_copy(document._meta, k, key)
+    for inkey, outkey in [('uid','id'),]:
+        conditional_copy(document._meta, k, inkey, outkey)
+    for inkey, outkey in [('type_key','type'),]:
+        setattr(k, outkey, getattr(document._osl,inkey))
+    return k
+
+
