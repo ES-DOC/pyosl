@@ -2,8 +2,8 @@ import unittest
 from mp_base import Base
 from mp_property import Property, PropertyDescriptor
 from factory import Factory, Ontology
-from copy import copy
-from osl_tools import volume, named_build, calendar_period, osl_fill_from, online, numeric_value
+from osl_tools import named_build, calendar_period, osl_fill_from, online, numeric_value
+from osl_encoder import osl_encode2json
 
 # make a factory to use in the test cases
 FACTORY = Factory
@@ -13,7 +13,7 @@ FACTORY.add_descriptor(PropertyDescriptor, Property)
 def make_archer():
     """ As an example, let's describe ARCHER"""
 
-    # establish documents
+    # establish documents:
     author = Factory.new_document('shared.party')
     author.name = 'Bryan Lawrence'
     author.orcid_id = '0000-0001-9262-7860'
@@ -45,30 +45,36 @@ def make_archer():
 
     highmem_nodes.compute_cores_per_node = 24
     highmem_nodes.cpu_type = 'Ivy Bridge'
-    highmem_nodes.memory_per_node = volume(128, 'GB')
+    highmem_nodes.memory_per_node = numeric_value(128., 'GB')
     highmem_nodes.number_of_nodes = 376
     highmem_nodes.model_number = 'E5-2697 v2'
     highmem_nodes.clock_speed = numeric_value(2.7,'GHz')
 
-    normal_nodes.memory_per_node = volume(64, 'GB')
+    normal_nodes.memory_per_node = numeric_value(64., 'GB')
     normal_nodes.number_of_nodes = 4544
     normal_nodes = osl_fill_from(normal_nodes, highmem_nodes)
 
-    #TODO Storage Pools
+    work.description = 'Primary parallel file storage for data. Not backed up.'
+    work.type = 'Lustre'
+    work.vendor = cray
+    work.file_system_sizes = [
+        numeric_value(1.4, 'PB'),
+        numeric_value(1.4, 'PB'),
+        numeric_value(1.6, 'PB'),
+    ]
 
+    home.description = 'Storage for code, and important results. ' +\
+                       'Backed up.'
+    home.type = 'NFS'
+    home.file_system_sizes = [numeric_value(218.,'TB'),]
 
-
-
-
+    return osl_encode2json(archer)
 
 
 class MakeArcher(unittest.TestCase):
 
-
-
    def test_make(self):
-       archer = make_archer()
-
+       archer_json = make_archer()
 
 if __name__=="__main__":
     unittest.main()
