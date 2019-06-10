@@ -139,11 +139,9 @@ class Factory:
         doc = Factory.build(klass)
         if not hasattr(doc,'_meta'):
             raise ValueError(f'Not-a-Document: Cannot build "{klass}" via new_document method')
-        meta = Factory.build('shared.doc_meta_info')
-        meta.uid = str(uuid4())
+        doc._meta.uid = str(uuid4())
         if author:
-            meta.author = author
-        doc._meta = meta
+            doc._meta.author = author
         return doc
 
 
