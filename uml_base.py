@@ -1,4 +1,4 @@
-from factory import OntoBase
+from ontology import OntoBase
 from uml_utils import uml_bubble, uml_simple_box, uml_enum_box_label, uml_class_box_label
 
 

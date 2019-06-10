@@ -1,4 +1,6 @@
-from factory import Ontology, Factory
+from factory import Factory
+from ontology import Ontology
+
 import unittest
 
 

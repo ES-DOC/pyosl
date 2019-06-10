@@ -1,4 +1,5 @@
-from factory import OntoBase, Factory
+from factory import Factory
+from ontology import OntoBase
 
 
 class Base(OntoBase):
