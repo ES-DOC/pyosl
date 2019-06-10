@@ -2,14 +2,15 @@ from errors import DocRefNoType
 from anacronisms import group_hack
 from uuid import uuid4
 from ontology import Ontology, OntoMeta
+from mp_property import PropertyDescriptor, Property
 
 
 class Factory:
 
     known_subclasses = {}
     ontology = Ontology()
-    descriptor = None
-    my_property = None
+    descriptor = PropertyDescriptor
+    my_property = Property
 
     @staticmethod
     def register(ontology):
@@ -31,6 +32,13 @@ class Factory:
 
         Factory.descriptor = descriptor
         Factory.my_property = d_property
+
+    @staticmethod
+    def reset_descriptor():
+        """ Reset the static descriptor methods to the default"""
+        Factory.descriptor = PropertyDescriptor
+        Factory.my_property = Property
+        Property.validator = Factory.core_validator
 
     @staticmethod
     def core_validator(value, target):

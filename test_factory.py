@@ -38,6 +38,7 @@ class TestFactory(unittest.TestCase):
     def setUp(self):
 
         self.f = Factory
+        self.f.reset_descriptor()
 
     def testFactorySimple(self):
 
