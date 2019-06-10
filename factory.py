@@ -1,14 +1,21 @@
 from errors import DocRefNoType
 from anacronisms import group_hack
 from uuid import uuid4
-from ontology import Ontology, OntoMeta
+from ontology import Ontology, OntoMeta, OntoBase
 from mp_property import PropertyDescriptor, Property
+
+
+class Base(OntoBase):
+
+    def __init__(self):
+        if self._osl.is_document:
+            self._meta = Factory.build('shared.doc_meta_info')
 
 
 class Factory:
 
     known_subclasses = {}
-    ontology = Ontology()
+    ontology = Ontology(Base)
     descriptor = PropertyDescriptor
     my_property = Property
 

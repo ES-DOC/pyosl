@@ -1,14 +1,9 @@
 import unittest
-from mp_base import Base
-from mp_property import Property, PropertyDescriptor
-from factory import Factory, Ontology
+
+from factory import Factory
 from osl_tools import named_build, calendar_period, osl_fill_from, online, numeric_value
 from osl_encoder import osl_encode2json
 
-# make a factory to use in the test cases
-FACTORY = Factory
-FACTORY.register(Ontology(Base))
-FACTORY.add_descriptor(PropertyDescriptor, Property)
 
 def make_archer():
     """ As an example, let's describe ARCHER"""

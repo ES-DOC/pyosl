@@ -1,6 +1,4 @@
-from mp_base import Base
-from mp_property import Property, PropertyDescriptor
-from factory import Factory, Ontology
+from factory import Factory
 import unittest
 
 
@@ -11,8 +9,7 @@ class TestBase(unittest.TestCase):
     """
     def setUp(self):
         o = Factory
-        o.register(Ontology(Base))
-        o.add_descriptor(PropertyDescriptor, Property)
+        o.reset_descriptor()
         self.sp = o.build('designing.simulation_plan')
         self.sp2 = o.build('designing.simulation_plan')
         self.sp3 = o.build('designing.simulation_plan')
@@ -82,8 +79,8 @@ class TestBase(unittest.TestCase):
 
         help(self.sp.name)
         # nb: can't do the next line without accessing .name somehow first ... so it will appear in the dictionary!
-        print('Cardinality :', self.sp.__dict__['name']._doc)
-        help(self.sp.name)
+        print(f'Docstring for "name" is "{self.sp.__dict__["name"]._doc}"')
+
 
     def test_delete(self):
         self.sp.name = 'Bryan'

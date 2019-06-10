@@ -5,7 +5,7 @@ from mp_property import Property
 class TestProperty(unittest.TestCase):
     """
     These tests all use builtin properties,
-    ontology class types are tested in the ontology class code that uses these properties.
+    Ontology class types are tested in the ontology class code that uses these properties.
     """
 
     def setUp(self):
@@ -52,6 +52,7 @@ class TestProperty(unittest.TestCase):
         p1.value = 'fred'
         p2.value = 'jane'
         self.assertNotEqual(p1, p2)
+
 
 if __name__ == "__main__":
     unittest.main()

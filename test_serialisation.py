@@ -1,7 +1,5 @@
-from factory import Ontology, Factory
 import unittest
 from pathlib import Path
-from mp_base import Base
 from mp_property import Property, PropertyDescriptor
 from factory import Factory, Ontology
 from esd_decoder import esd_decode, de_camel_attribute
@@ -10,11 +8,6 @@ from osl_encoder import osl_encode2json, bundle_instance
 from osl_decoder import osl_decode_json
 
 import json
-
-# make a factory to use in the test cases
-FACTORY = Factory
-FACTORY.register(Ontology(Base))
-FACTORY.add_descriptor(PropertyDescriptor, Property)
 
 
 class TestESDread(unittest.TestCase):
@@ -33,16 +26,16 @@ class TestESDread(unittest.TestCase):
             print(x)
             with x.open() as f:
                 doc_as_json = json.load(f)
-                r = esd_decode(FACTORY, doc_as_json)
+                r = esd_decode(Factory, doc_as_json)
                 print(r)
 
     def test_esdroundtrip(self):
         for x in self.instances:
             with x.open() as f:
                 json_version = json.load(f)
-                python_version = esd_decode(FACTORY, json_version)
+                python_version = esd_decode(Factory, json_version)
                 new_json_version = esd_encode(python_version)
-                new_python_version = esd_decode(FACTORY, new_json_version)
+                new_python_version = esd_decode(Factory, new_json_version)
                 assert python_version == new_python_version
 
 
@@ -65,7 +58,7 @@ class TestESDArchive(unittest.TestCase):
                 with docfile.open() as f:
                     try:
                         json_version = json.load(f)
-                        python_version = esd_decode(FACTORY, json_version)
+                        python_version = esd_decode(Factory, json_version)
                     except:
                         print(f"Error reading {docfile}")
                         raise
@@ -81,20 +74,20 @@ class TestOSLroundtrip(unittest.TestCase):
         for x in self.instances:
             with x.open() as f:
                 json_version = json.load(f)
-                python_version = esd_decode(FACTORY, json_version)
+                python_version = esd_decode(Factory, json_version)
                 new_json_version = osl_encode2json(python_version)
-                new_python_version = osl_decode_json(FACTORY, new_json_version)
+                new_python_version = osl_decode_json(Factory, new_json_version)
                 assert python_version == new_python_version
 
     def test_bundle(self):
-        author = FACTORY.new_document('shared.party')
-        document = FACTORY.new_document('designing.project', author)
+        author = Factory.new_document('shared.party')
+        document = Factory.new_document('designing.project', author)
         author.name = 'Bryan'
         document.name = 'My Big Fat Experiment'
         docs = bundle_instance(document)
         self.assertEqual(len(docs), 2, 'Wrong number of documents returned')
         for doc in docs:
-            odoc = osl_decode_json(FACTORY,doc)
+            odoc = osl_decode_json(Factory,doc)
             print(odoc)
 
 

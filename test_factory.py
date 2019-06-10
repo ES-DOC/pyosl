@@ -1,4 +1,4 @@
-from factory import Factory
+from factory import Factory,Base
 from ontology import Ontology
 
 import unittest
@@ -9,7 +9,7 @@ class TestOntology(unittest.TestCase):
     attempted reloads of the Ontology class."""
 
     def setUp(self):
-        self.o = Ontology()
+        self.o = Ontology(Base)
         assert isinstance(self.o, Ontology)
 
     def test_printable(self):

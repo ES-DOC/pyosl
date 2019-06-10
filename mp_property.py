@@ -82,9 +82,7 @@ class Property:
         """
         Initialise with a property tuple from the schema definition.
         """
-        # In practice initialising the doc string isn't very useful, since
-        # it appears that there is no way to get to it, but we do it anyway
-        # in case we find a way to do it in the future.
+
         self._name, self._target, self._cardinality, self._doc = definition
         if self._cardinality in ['0.0','0.1','1.1']:
             self.__value = None
@@ -92,10 +90,8 @@ class Property:
             self.__value = PropertyList(self._target, [])
         self._initialised = False
 
-        #FIXME: This doesn't work.
-        self.__doc__ = definition
-
     def __set(self, value):
+        """ This is the setter method"""
 
         # TODO include support for a one time initialisation of something that cannot be changed.
 
@@ -116,16 +112,19 @@ class Property:
                 raise ValueError('Attempt to set inconsistent type {} on property {} (expected {})'.format(type(value), self._name, self._target))
 
     def __get(self):
-        """ I want to see this and dynamically set it, but I can't right now """
+        """ This is the getter method """
         return self.__value
 
     def append(self, value):
+        """ Need to deal with append for list types """
         if Property.validator(value, self._target):
             self.__value.append(value)
         else:
             raise ValueError('Attempt to add inconsistent type to list in property')
 
     def __eq__(self, other):
+        """ Properly compare. Not used in anger, but can be useful in tests. (Not used in
+        anger since property values are normally exposed."""
         if not isinstance(other, Property):
             return False
         for n in ['_name', '_cardinality', '_target', '_doc']:
@@ -137,10 +136,5 @@ class Property:
 
     def __ne__(self, other):
         return not self == other
-
-    def __str__(self):
-        if self.value:
-            return '{}: {}'.format(self.name, str(self.value))
-        return self.value
 
     value = property(__get, __set)
