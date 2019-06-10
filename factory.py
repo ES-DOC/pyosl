@@ -2,6 +2,7 @@ from collections import OrderedDict
 from loader import NAME, VERSION, DOCUMENTATION, PACKAGES
 from errors import DocRefNoType
 from anacronisms import group_hack
+from uuid import uuid4
 
 
 def meta_fix(constructor):
@@ -75,7 +76,9 @@ class Ontology:
         """ Given a key, if just a naked package.klass, return, otherwise
         check ontology and version, then return the naked package.klass"""
         info = key.split('.')
-        if len(info) == 2:
+        if len(info) == 1:
+            return key
+        elif len(info) == 2:
              return key
         elif len(info) == 4:
             try:
@@ -270,6 +273,19 @@ class Factory:
                 raise ValueError("Attempt to instantiate abstract class")
         return candidate
 
+
+    @staticmethod
+    def new_document(klass, author=None):
+        """ Build and initialise a new document"""
+        doc = Factory.build(klass)
+        if not hasattr(doc,'_meta'):
+            raise ValueError(f'Not-a-Document: Cannot build "{klass}" via new_document method')
+        doc._meta.uid = str(uuid4())
+        if author:
+            doc._meta.author = author
+        return doc
+
+
     def __build(key):
 
         """ Convenience method for building classes. Isolated for code readability. """
@@ -291,6 +307,11 @@ class Factory:
             if hasattr(klass._osl, 'properties'):
                 for p in klass._osl.properties + klass._osl.inherited_properties:
                     setattr(klass, p[0], Factory.descriptor(p))
+
+            if klass._osl.is_document:
+                p = ('_meta', 'shared.doc_meta_info', '1.1', 'Document Metadata')
+                setattr(klass, p[0], Factory.descriptor(p))
+
 
         return klass
 

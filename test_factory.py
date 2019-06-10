@@ -54,12 +54,11 @@ class TestFactory(unittest.TestCase):
 class TestOntoBase(unittest.TestCase):
 
     def setUp(self):
-        self.f = Factory()
+        self.f = Factory
         self.k = self.f.build('designing.numerical_experiment')
         self.kbb = self.f.build('designing.temporal_constraint')
         self.nr = self.f.build('designing.numerical_requirement')
         self.dr = self.f.build('shared.doc_reference')
-
 
     def test_fundamentals(self):
         assert hasattr(self.k, '_osl')
