@@ -5,12 +5,7 @@ those of us who have come to Python without in-depth training in Python.
 
 We make use of two less-well known pieces of Python technology: descriptors and properties.  
 
-A full
-example of why one might want to use descriptors (and an explanation of some of the details we use)
-can be found in an excellent 
-[online post by Chris Beaumont](https://nbviewer.jupyter.org/urls/gist.github.com/ChrisBeaumont/5758381/raw/descriptor_writeup.ipynb).
-However, the bottom line is that we use properties to manage access to class attributes, and we use descriptors 
-to manage properties in a reusable way.
+A full example of why one might want to use descriptors (and an explanation of some of the details we use) can be found in an excellent  [online post by Chris Beaumont](https://nbviewer.jupyter.org/urls/gist.github.com/ChrisBeaumont/5758381/raw/descriptor_writeup.ipynb). However, the bottom line is that we use properties to manage access to class attributes, and we use descriptors to manage properties in a reusable way.
 
 
 Properties provide a way of ensuring that any attempt to change the state of an instance attribute 
