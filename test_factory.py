@@ -97,5 +97,21 @@ class TestOntoBase(unittest.TestCase):
         self.assertTrue(self.f.core_validator('Not on your nelly', 'activity.conformance_type'))
 
 
+class TestNewDocument(unittest.TestCase):
+
+    def setUp(self):
+        self.a = Factory.new_document('shared.party')
+        self.a.name = 'Test Author'
+
+    def testUUID(self):
+        from uuid import UUID
+        should_be_a_uuid = UUID(self.a._meta.uid)
+        self.assertEqual(str(should_be_a_uuid), self.a._meta.uid)
+
+    def testCreateWithAuthor(self):
+        document = Factory.new_document('designing.project', self.a)
+        self.assertEqual(document._meta.author.name,'Test Author')
+
+
 if __name__ == "__main__":
     unittest.main()
