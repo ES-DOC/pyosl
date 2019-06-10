@@ -76,16 +76,14 @@ class TestBase(unittest.TestCase):
         self.assertTrue(Factory.core_validator(self.sp._meta, 'shared.doc_meta_info'))
 
     def test_docstring(self):
-
-        help(self.sp.name)
+        self.sp.name = 'Bryan'
         # nb: can't do the next line without accessing .name somehow first ... so it will appear in the dictionary!
         print(f'Docstring for "name" is "{self.sp.__dict__["name"]._doc}"')
-
 
     def test_delete(self):
         self.sp.name = 'Bryan'
         del (self.sp.name)
-        print(self.sp.name)
+        self.assertEqual(None,self.sp.name)
 
 
 if __name__ == "__main__":

@@ -17,7 +17,10 @@ class Property:
     def setx(self, x):
         self.__value = x
 
-    value = property(getx, setx)
+    def delx(self):
+        print ('deleted')
+
+    value = property(getx, setx, delx)
 
 
 class Descriptor:
@@ -39,6 +42,9 @@ class Descriptor:
     def __set__(self, instance, value):
         print('__set__ toy ')
         instance.__dict__[self.label] = Property(value)
+
+    def __delete__(self, instance):
+        print ('delete')
 
 
 class Foo(list):
@@ -67,6 +73,11 @@ class TestBasic(unittest.TestCase):
         g = Foo()
         g.append(1)
         assert g[0] == 1
+
+    def test_delete(self):
+        g = Foo()
+        g.x = 5
+        del (g.x)
 
 
 if __name__ == "__main__":

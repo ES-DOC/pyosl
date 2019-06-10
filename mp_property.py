@@ -42,6 +42,9 @@ class PropertyDescriptor:
             instance.__dict__[self.label] = Property(self.definition)
         return instance.__dict__[self.label]
 
+    def __delete__(self, instance):
+        del instance.__dict__[self.label]
+
 
 class PropertyList (list):
     """
@@ -84,7 +87,7 @@ class Property:
         """
 
         self._name, self._target, self._cardinality, self._doc = definition
-        if self._cardinality in ['0.0','0.1','1.1']:
+        if self._cardinality in ['0.0', '0.1', '1.1']:
             self.__value = None
         else:
             self.__value = PropertyList(self._target, [])
@@ -123,8 +126,8 @@ class Property:
             raise ValueError('Attempt to add inconsistent type to list in property')
 
     def __eq__(self, other):
-        """ Properly compare. Not used in anger, but can be useful in tests. (Not used in
-        anger since property values are normally exposed."""
+        """ Properly compare. Not used in anger, but can be useful in tests.
+        (Not used in anger since property values are normally exposed."""
         if not isinstance(other, Property):
             return False
         for n in ['_name', '_cardinality', '_target', '_doc']:
@@ -134,7 +137,15 @@ class Property:
             return 0
         return 1
 
+    def info(self):
+        """ Return docstring """
+        # FIXME: Add a test and show usage.
+        return self._doc
+
+    def __delete__(self):
+        self.__value = None
+
     def __ne__(self, other):
         return not self == other
 
-    value = property(__get, __set)
+    value = property(__get, __set, __delete__)
