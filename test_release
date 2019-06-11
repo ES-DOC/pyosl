@@ -1,0 +1,28 @@
+#!/bin/bash
+
+# --------------------------------------------------------------------
+# Install and run tests in ~/tmp
+# --------------------------------------------------------------------
+
+set -x
+
+if [[ ! $1 ]] ; then 
+  echo "Must set version as \$1 (e.g. 1.1.2)"
+  exit 1
+fi
+
+vn=$1
+
+cp dist/pyosl-$vn.tar.gz ~/tmp
+cd ~/tmp
+rm -fr ~/tmp/test ~/tmp/bin ~/tmp/lib ~/tmp/pyosl-$vn
+tar zxvf pyosl-$vn.tar.gz
+cd pyosl-$vn
+python setup.py install --home=~/tmp
+
+export PYTHONPATH=~/tmp/lib/python:$PYTHONPATH
+
+cd ~/tmp/lib/python/pyosl/test
+python run_tests.py
+
+set -x

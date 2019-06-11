@@ -1,9 +1,11 @@
 import unittest
 
-from uml_diagrams import BasicUML
-from uml_packages import PackageUML
-from uml_base import UmlBase
-from factory import Factory, Ontology
+from pyosl import Factory, Ontology
+
+from pyosl.uml import BasicUML
+from pyosl.uml import PackageUML
+from pyosl.uml import UmlBase
+
 
 
 class TestGraphCases(unittest.TestCase):

@@ -1,5 +1,6 @@
-from factory import Factory
 import unittest
+
+from pyosl import Factory
 
 
 class TestBase(unittest.TestCase):

@@ -1,7 +1,7 @@
-from factory import Factory,Base
-from ontology import Ontology
-
 import unittest
+
+from pyosl import Factory,Base
+from pyosl import Ontology
 
 
 class TestOntology(unittest.TestCase):

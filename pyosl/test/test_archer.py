@@ -1,8 +1,8 @@
 import unittest
 
-from factory import Factory
-from osl_tools import named_build, calendar_period, osl_fill_from, online, numeric_value
-from osl_encoder import osl_encode2json
+from pyosl import Factory
+from pyosl import named_build, calendar_period, osl_fill_from, online, numeric_value
+from pyosl import osl_encode2json
 
 
 def make_archer():

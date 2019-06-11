@@ -4,6 +4,7 @@ from inspect import getmembers, isfunction
 import unittest
 import configparser
 
+from . import __file__
 
 def setup_ontology(section='TESTING', name='cim'):
 
@@ -11,7 +12,9 @@ def setup_ontology(section='TESTING', name='cim'):
 
     config = configparser.ConfigParser()
 
-    config.read('configuration.ini')
+    config_file = os.path.abspath(os.path.join(os.path.dirname(__file__), 'etc/configuration.ini'))
+
+    config.read(config_file)
     ontodir = config[section][name]
     if '~' in ontodir:
         ontodir = os.path.expanduser(ontodir)

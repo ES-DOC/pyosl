@@ -7,7 +7,7 @@ The key is that instead of using the base factory to build instances of the `Ont
 The code to do this makes use of the `register` method of the factory class:
 
 ```python
-from factory import Factory, Ontology, OntoBase
+from pyosl import Factory, Ontology, OntoBase
 
 class UmlBase(OntoBase):
     """ UML machinery"""

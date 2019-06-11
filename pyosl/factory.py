@@ -1,8 +1,9 @@
-from errors import DocRefNoType
-from anacronisms import group_hack
 from uuid import uuid4
-from ontology import Ontology, OntoMeta, OntoBase
-from mp_property import PropertyDescriptor, Property
+
+from .errors import DocRefNoType
+from .anacronisms import group_hack
+from .ontology import Ontology, OntoMeta, OntoBase
+from .mp_property import PropertyDescriptor, Property
 
 
 class Base(OntoBase):

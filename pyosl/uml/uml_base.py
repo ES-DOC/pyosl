@@ -1,5 +1,6 @@
-from ontology import OntoBase
-from uml_utils import uml_bubble, uml_simple_box, uml_enum_box_label, uml_class_box_label
+from .uml_utils import uml_bubble, uml_simple_box, uml_enum_box_label, uml_class_box_label
+
+from ..ontology import OntoBase
 
 
 class UmlBase(OntoBase):

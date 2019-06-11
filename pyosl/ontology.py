@@ -1,5 +1,6 @@
 from collections import OrderedDict
-from loader import NAME, VERSION, DOCUMENTATION, PACKAGES
+
+from .loader import NAME, VERSION, DOCUMENTATION, PACKAGES
 
 
 def meta_fix(constructor):
@@ -50,9 +51,10 @@ class Ontology:
     def __init__(self, base_class=OntoBase):
         """ Initialise ontology with a base class """
 
-        (self.name, self.version, self.documentation, self.constructors) = (
+        (self.name, self.full_version, self.documentation, self.constructors) = (
             NAME, VERSION, DOCUMENTATION, PACKAGES)
 
+        self.version = self.full_version.split('.')[0]
         self.BaseClass = base_class
 
         self.__initialise_classes()

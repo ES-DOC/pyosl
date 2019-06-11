@@ -1,7 +1,8 @@
 # Decode json from the pyesdoc family
 # Based on Mark Greenslade's pyesdoc/_codecs/dictionary/decoder.py
 import re
-from errors import DocRefNoType
+
+from .errors import DocRefNoType
 
 
 def translate_type_to_osl_from_esd(doc_type):
