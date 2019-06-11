@@ -79,7 +79,7 @@ def esd_encode(doc):
         if 'meta' not in obj:
             obj['meta'] = {}
         obj['meta']['type'] = encamel(doc._osl.type_key)
-        if klass == 'shared.doc_reference':
-            obj['type'] = f"{doc._osl.ontology_name}.{doc._osl.cim_version}.{obj['type']}"
+        #if klass == 'shared.doc_reference':
+        #    obj['type'] = f"{doc._osl.ontology_name}.{doc._osl.cim_version}.{obj['type']}"
         print(klass, obj['meta']['type'])
     return obj

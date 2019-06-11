@@ -12,7 +12,7 @@ def translate_type_to_osl_from_esd(doc_type):
     assert (o, v) == ('cim', '2')
     s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', d)
     d2 = re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
-    return '.'.join([p,d2])
+    return '.'.join([o,v,p,d2])
 
 
 def de_camel_attribute(n):
@@ -42,7 +42,7 @@ def _decode(factory, content, klass):
                     # FIXME: Raise an issue in pyesdoc about this, the serialisation
                     # should include an author type.
                     if klass == 'shared.doc_meta_info':
-                        newv.type = 'shared.party'
+                        newv.type = 'cim.2.shared.party'
                         setattr(instance, name, newv)
                     else:
                         raise

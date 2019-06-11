@@ -5,7 +5,7 @@ from osl_encoder import SERIAL_VERSION
 def check_target_understood(key):
     o, v, p, d = key.split('.')
     assert (o, v) == ('cim', '2')
-    return '.'.join([p,d])
+    return key
 
 
 def _decode(factory, content, klass):

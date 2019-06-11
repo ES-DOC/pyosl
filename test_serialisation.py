@@ -1,7 +1,6 @@
 import unittest
 from pathlib import Path
-from mp_property import Property, PropertyDescriptor
-from factory import Factory, Ontology
+from factory import Factory
 from esd_decoder import esd_decode, de_camel_attribute
 from esd_encoder import esd_encode
 from osl_encoder import osl_encode2json, bundle_instance
@@ -9,6 +8,7 @@ from osl_decoder import osl_decode_json
 
 import json
 
+Factory.reset_descriptor()
 
 class TestESDread(unittest.TestCase):
     """ Tests de-serialisation from an ES-DOC json instance"""
