@@ -53,5 +53,5 @@ setup(name = "pyosl",
                       'pyosl/test',
                       ],
       package_data =  {'pyosl': ['etc/*.ini']},
-      install_requires = ['pygraphviz'],
+      install_requires = ['pygraphviz>=1.6'],
 )
