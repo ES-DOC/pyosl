@@ -1,5 +1,6 @@
 import unittest
-from mp_property import Property
+
+from pyosl import Property
 
 
 class TestProperty(unittest.TestCase):

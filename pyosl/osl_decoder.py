@@ -1,5 +1,6 @@
 import json
-from osl_encoder import SERIAL_VERSION
+
+from .osl_encoder import SERIAL_VERSION
 
 
 def check_target_understood(key):

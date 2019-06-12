@@ -1,7 +1,8 @@
-from mp_property import Property
-from osl_tools import get_reference_for
-
 import json
+
+from .mp_property import Property
+from .osl_tools import get_reference_for
+
 
 SERIAL_VERSION = 'json by osl_encode V0.2'
 

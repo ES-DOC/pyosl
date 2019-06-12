@@ -1,5 +1,6 @@
 from collections import OrderedDict
-from loader import NAME, VERSION, DOCUMENTATION, PACKAGES
+
+from .loader import NAME, VERSION, DOCUMENTATION, PACKAGES
 
 
 def meta_fix(constructor):

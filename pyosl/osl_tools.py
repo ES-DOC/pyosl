@@ -1,8 +1,8 @@
 import uuid
 from datetime import date
-from factory import Factory
 from copy import deepcopy
 
+from .factory import Factory
 
 def named_build(klass, name):
     """ Minimise effort for building a class """

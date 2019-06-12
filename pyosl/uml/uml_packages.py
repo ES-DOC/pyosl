@@ -1,6 +1,7 @@
 from jinja2 import Template
-from factory import Factory
 import pygraphviz as pgv
+
+from ..factory import Factory
 
 
 def package_label(package_name, package_contents):

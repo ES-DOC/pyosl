@@ -1,9 +1,11 @@
 import math
 import pygraphviz as pgv
-from uml_utils import PackageColour
-from factory import Factory
 from copy import copy
-from uml_base import UmlBase
+
+from .uml_utils import PackageColour
+from .uml_base  import UmlBase
+
+from ..factory import Factory
 
 
 class BasicUML:

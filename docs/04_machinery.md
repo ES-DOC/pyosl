@@ -25,7 +25,7 @@ The core tools simply build the instances, and populate an attribute of each ins
 a private attribute `_osl` which itself holds the ontology definitions, e.g.
 
 ```python
-from factory import Factory
+from pyosl import Factory
  
 f = Factory()
 klass = 'designing.numerical_requirement'
@@ -50,7 +50,7 @@ that an instance of _temporal_constraint_ is in fact an instance
 of a _numerical_requirement.
 
 ```python
-from factory import Factory
+from pyosl import Factory
 
 f = Factory()
 eg_tc = f.build('designing.temporal_constraint')

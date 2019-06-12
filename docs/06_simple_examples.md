@@ -35,9 +35,9 @@ pyosl attributes via a user defined descriptor class.
 The set up for this functionality is simple:
 
 ```python
-from factory import Factory, Ontology
-from mp_base import Base
-from mp_property import Property, PropertyDescriptor
+from pyosl import Factory, Ontology
+from pyosl import Base
+from pyosl import Property, PropertyDescriptor
 
 o = Factory
 o.register(Ontology(Base))

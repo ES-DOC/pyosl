@@ -1,5 +1,6 @@
 import unittest
-from mp_property import PropertyDescriptor, Property
+
+from pyosl import PropertyDescriptor, Property
 
 
 def square():
