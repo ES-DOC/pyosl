@@ -1,6 +1,7 @@
 __author__       = 'Bryan Lawrence'
-__date__         = '2019-06-11'
-__version__      = '0.0.0.1'
+__date__         = '2019-06-12'
+__version__      = '0.0.0.2'
+
 
 # Classes
 from .factory     import (Base,
