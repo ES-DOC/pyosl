@@ -1,4 +1,4 @@
-import unittest
+import unittest, os
 
 from pyosl import Factory, Ontology
 
@@ -7,10 +7,14 @@ from pyosl.uml import PackageUML
 from pyosl.uml import UmlBase
 
 
-
 class TestGraphCases(unittest.TestCase):
 
     def setUp(self):
+        # pycharm test hack follows, allows pycharm test auto discover to co-exist
+        # with an independent sub package for the tests, and find the output directory.
+        if os.getcwd().endswith('pyosl'):
+            os.chdir(os.path.join(os.getcwd(), 'test'))
+
         Factory.register(Ontology(UmlBase))
 
     def test_experiment(self):
@@ -85,11 +89,18 @@ class TestGraphCases(unittest.TestCase):
         d.fix_layout(3, ['designing.numerical_requirement_scope',])
         d.generate_pdf()
 
+
 class TestPackageUML(unittest.TestCase):
+
+    def setUp(self):
+        # pycharm test hack follows, allows pycharm test auto discover to co-exist
+        # with an independent sub package for the tests, and find the output directory.
+        if os.getcwd().endswith('pyosl'):
+            os.chdir(os.path.join(os.getcwd(), 'test'))
 
     def test_umlontology(self):
 
-        p = PackageUML('test_all-uml')
+        p = PackageUML('test_output/test_all-uml')
         p.generate_pdf()
 
 
