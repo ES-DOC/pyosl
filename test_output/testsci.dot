@@ -1,0 +1,336 @@
+digraph "" {
+	graph [fontsize=8,
+		ranksep=0.3,
+		splines=True
+	];
+	node [label="\N"];
+	"science.model"	 [label=<<TABLE BGCOLOR="white" BORDER="1" CELLBORDER="0" CELLSPACING="0">
+    
+    
+    <TR><TD ALIGN="CENTER" BORDER="1" SIDES="B" BGCOLOR="black">
+    <FONT FACE="Helvetica Bold" COLOR="white">model</FONT></TD></TR>
+    
+    
+    <TR><TD ALIGN="LEFT" CELLPADDING="2">keywords: str &#91;0.N&#93;</TD></TR> 
+    
+    </TABLE>>,
+		shape=plain];
+	"science.model":c -> "science.model":c	 [arrowhead=vee,
+		arrowtail=diamond,
+		dir=both,
+		label=" coupled
+ components
+(0.N)",
+		labelangle=45.0,
+		labeldistance=2.2,
+		labelfloat=False];
+	"science.realm"	 [label=<<TABLE BGCOLOR="white" BORDER="1" CELLBORDER="0" CELLSPACING="0">
+    
+    
+    <TR><TD ALIGN="CENTER" BORDER="1" SIDES="B" BGCOLOR="black">
+    <FONT FACE="Helvetica Bold" COLOR="white">realm</FONT></TD></TR>
+    
+    
+    <TR><TD ALIGN="LEFT" CELLPADDING="2">canonical_name: str &#91;0.1&#93;</TD></TR> 
+    
+    </TABLE>>,
+		shape=plain];
+	"science.model":c -> "science.realm":c	 [arrowhead=vee,
+		arrowtail=diamond,
+		dir=both,
+		label=" realms
+(0.N)",
+		labelangle=45.0,
+		labeldistance=2.2,
+		labelfloat=False];
+	"science.realm_coupling"	 [label=<<TABLE BGCOLOR="white" BORDER="1" CELLBORDER="0" CELLSPACING="0">
+    
+    
+    <TR><TD ALIGN="CENTER" BORDER="1" SIDES="B" BGCOLOR="black">
+    <FONT FACE="Helvetica Bold" COLOR="white">realm_coupling</FONT></TD></TR>
+    
+    
+    <TR><TD ALIGN="LEFT" CELLPADDING="2">variable: str &#91;1.1&#93;</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">source_realm: str &#91;1.1&#93;</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">target_realm: str &#91;1.1&#93;</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">time_frequency: str &#91;1.1&#93;</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">coupling_details: str &#91;0.1&#93;</TD></TR> 
+    
+    </TABLE>>,
+		shape=plain];
+	"science.model":c -> "science.realm_coupling":c	 [arrowhead=vee,
+		label=" realm
+ coupling
+(0.N)",
+		labelangle=30.0,
+		labeldistance=2.2,
+		labelfloat=False];
+	"science.topic"	 [label=<<TABLE BGCOLOR="white" BORDER="1" CELLBORDER="0" CELLSPACING="0">
+    
+    
+    <TR><TD ALIGN="CENTER" BORDER="1" SIDES="B" BGCOLOR="black">
+    <FONT FACE="Helvetica Bold" COLOR="white">topic</FONT></TD></TR>
+    
+    
+    <TR><TD ALIGN="LEFT" CELLPADDING="2">description: str &#91;0.1&#93;</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">keywords: str &#91;0.N&#93;</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">name: str &#91;0.1&#93;</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">overview: str &#91;0.1&#93;</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">qc_status: int &#91;0.1&#93;</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">specialization_id: str &#91;1.1&#93;</TD></TR> 
+    
+    </TABLE>>,
+		shape=plain];
+	"science.model":c -> "science.topic":c	 [arrowhead=vee,
+		label=" key
+ properties
+(0.1)",
+		labelangle=30.0,
+		labeldistance=2.2,
+		labelfloat=False];
+	"science.model":c -> "science.topic":c	 [arrowhead=vee,
+		label=" activity
+ properties
+(0.N)",
+		labelangle=30.0,
+		labeldistance=2.2,
+		labelfloat=False];
+	"science.model_types"	 [label=<<TABLE BGCOLOR="gainsboro" BORDER="1" CELLBORDER="0" CELLSPACING="0">
+    <TR><TD ALIGN="CENTER" BGCOLOR="black" >
+    <FONT FACE="Helvetica Bold" COLOR="white">model_types</FONT></TD></TR>
+    
+    
+    <TR><TD ALIGN="left" CELLPADDING="2" BORDER="0"> Atm Only</TD></TR>  
+    <TR><TD ALIGN="left" CELLPADDING="2" BORDER="0"> Ocean Only</TD></TR>  
+    <TR><TD ALIGN="left" CELLPADDING="2" BORDER="0"> Regional</TD></TR>  
+    <TR><TD ALIGN="left" CELLPADDING="2" BORDER="0"> ESM</TD></TR>  
+    <TR><TD ALIGN="left" CELLPADDING="2" BORDER="0"> GCM</TD></TR>  
+    <TR><TD ALIGN="left" CELLPADDING="2" BORDER="0"> IGCM</TD></TR>  
+    <TR><TD ALIGN="left" CELLPADDING="2" BORDER="0"> GCM-MLO</TD></TR>  
+    <TR><TD ALIGN="left" CELLPADDING="2" BORDER="0"> Mesoscale</TD></TR>  
+    <TR><TD ALIGN="left" CELLPADDING="2" BORDER="0"> Process</TD></TR>  
+    <TR><TD ALIGN="left" CELLPADDING="2" BORDER="0"> Planetary</TD></TR>  
+    </TABLE>>,
+		shape=plain];
+	"science.model":c -> "science.model_types":c	 [arrowhead=vee,
+		label=" model
+ type
+(1.1)",
+		labelangle=30.0,
+		labeldistance=2.2,
+		labelfloat=False];
+	"software.coupling_framework"	 [label=<<TABLE BGCOLOR="gainsboro" BORDER="1" CELLBORDER="0" CELLSPACING="0">
+    <TR><TD ALIGN="CENTER" BGCOLOR="black" >
+    <FONT FACE="Helvetica Bold" COLOR="white">coupling_framework</FONT></TD></TR>
+    
+    
+    <TR><TD ALIGN="left" CELLPADDING="2" BORDER="0"> OASIS</TD></TR>  
+    <TR><TD ALIGN="left" CELLPADDING="2" BORDER="0"> OASIS3-MCT</TD></TR>  
+    <TR><TD ALIGN="left" CELLPADDING="2" BORDER="0"> ESMF</TD></TR>  
+    <TR><TD ALIGN="left" CELLPADDING="2" BORDER="0"> NUOPC</TD></TR>  
+    <TR><TD ALIGN="left" CELLPADDING="2" BORDER="0"> Bespoke</TD></TR>  
+    <TR><TD ALIGN="left" CELLPADDING="2" BORDER="0"> Unknown</TD></TR>  
+    <TR><TD ALIGN="left" CELLPADDING="2" BORDER="0"> None</TD></TR>  
+    </TABLE>>,
+		shape=plain];
+	"science.model":c -> "software.coupling_framework":c	 [arrowhead=vee,
+		label=" coupler
+(0.1)",
+		labelangle=30.0,
+		labeldistance=2.2,
+		labelfloat=False];
+	"software.software_component"	 [label=<<TABLE BGCOLOR="white" BORDER="1" CELLBORDER="0" CELLSPACING="0">
+    
+    
+    <TR><TD ALIGN="CENTER" BORDER="1" SIDES="B" BGCOLOR="black">
+    <FONT FACE="Helvetica Bold" COLOR="white">software_component</FONT></TD></TR>
+    
+    
+    <TR><TD ALIGN="LEFT" CELLPADDING="2">composition: software.composition &#91;0.1&#93;</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">connection_points: software.variable &#91;0.N&#93;</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">dependencies: software.entry_point &#91;0.N&#93;</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">grid: software.gridspec &#91;0.1&#93;</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">language: software.programming_language &#91;0.1&#93;</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">license: str &#91;0.1&#93;</TD></TR> 
+    
+    </TABLE>>,
+		shape=plain];
+	"science.model":c -> "software.software_component":c	 [arrowhead=vee,
+		label=" internal
+ software
+ components
+(0.N)",
+		labelangle=30.0,
+		labeldistance=2.2,
+		labelfloat=False];
+	"science.realm":c -> "science.topic":c	 [arrowhead=vee,
+		label=" grid
+(0.1)",
+		labelangle=30.0,
+		labeldistance=2.2,
+		labelfloat=False];
+	"science.realm":c -> "science.topic":c	 [arrowhead=vee,
+		label=" key
+ properties
+(0.1)",
+		labelangle=30.0,
+		labeldistance=2.2,
+		labelfloat=False];
+	"science.realm":c -> "science.topic":c	 [arrowhead=vee,
+		label=" processes
+(1.N)",
+		labelangle=30.0,
+		labeldistance=2.2,
+		labelfloat=False];
+	"software.implementation"	 [label=<<TABLE BGCOLOR="white" BORDER="1" CELLBORDER="0" CELLSPACING="0">
+    
+    
+    <TR><TD ALIGN="CENTER" BORDER="1" SIDES="B" BGCOLOR="black">
+    <FONT FACE="Helvetica Bold" COLOR="white">implementation</FONT></TD></TR>
+    
+    
+    <TR><TD ALIGN="LEFT" CELLPADDING="2">canonical_id: str &#91;0.1&#93;</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">description: str &#91;0.1&#93;</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">development_history: software.development_path &#91;0.1&#93;</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">long_name: str &#91;0.1&#93;</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">name: str &#91;1.1&#93;</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">release_date: datetime &#91;0.1&#93;</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">repository: shared.online_resource &#91;0.1&#93;</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">version: str &#91;0.1&#93;</TD></TR> 
+    
+    </TABLE>>,
+		shape=plain];
+	"science.realm":c -> "software.implementation":c	 [arrowhead=vee,
+		label=" software
+ frameworks
+(0.N)",
+		labelangle=30.0,
+		labeldistance=2.2,
+		labelfloat=False];
+	"science.topic" -> "science.realm"	 [arrowtail=empty,
+		dir=back];
+	"science.topic":c -> "science.topic":c	 [arrowhead=vee,
+		label=" sub
+ topics
+(0.N)",
+		labelangle=30.0,
+		labeldistance=2.2,
+		labelfloat=False];
+	"science.topic_property"	 [label=<<TABLE BGCOLOR="white" BORDER="1" CELLBORDER="0" CELLSPACING="0">
+    
+    
+    <TR><TD ALIGN="CENTER" BORDER="1" SIDES="B" BGCOLOR="black">
+    <FONT FACE="Helvetica Bold" COLOR="white">topic_property</FONT></TD></TR>
+    
+    
+    <TR><TD ALIGN="LEFT" CELLPADDING="2">description: str &#91;0.1&#93;</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">name: str &#91;0.1&#93;</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">specialization_id: str &#91;1.1&#93;</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">values: str &#91;1.N&#93;</TD></TR> 
+    
+    </TABLE>>,
+		shape=plain];
+	"science.topic":c -> "science.topic_property":c	 [arrowhead=vee,
+		label=" properties
+(0.N)",
+		labelangle=30.0,
+		labeldistance=2.2,
+		labelfloat=False];
+	"science.topic_property_set"	 [label=<<TABLE BGCOLOR="white" BORDER="1" CELLBORDER="0" CELLSPACING="0">
+    
+    
+    <TR><TD ALIGN="CENTER" BORDER="1" SIDES="B" BGCOLOR="black">
+    <FONT FACE="Helvetica Bold" COLOR="white">topic_property_set</FONT></TD></TR>
+    
+    
+    <TR><TD ALIGN="LEFT" CELLPADDING="2">description: str &#91;0.1&#93;</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">name: str &#91;0.1&#93;</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">specialization_id: str &#91;1.1&#93;</TD></TR> 
+    
+    </TABLE>>,
+		shape=plain];
+	"science.topic":c -> "science.topic_property_set":c	 [arrowhead=vee,
+		label=" property
+ sets
+(0.N)",
+		labelangle=30.0,
+		labeldistance=2.2,
+		labelfloat=False];
+	"shared.citation"	 [label=<<TABLE BGCOLOR="white" BORDER="1" CELLBORDER="0" CELLSPACING="0">
+    
+    
+    <TR><TD ALIGN="CENTER" BORDER="1" SIDES="B" BGCOLOR="black">
+    <FONT FACE="Helvetica Bold" COLOR="white">citation</FONT></TD></TR>
+    
+    
+    <TR><TD ALIGN="LEFT" CELLPADDING="2">abstract: str &#91;0.1&#93;</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">authors: str &#91;0.N&#93;</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">bibtex: str &#91;0.1&#93;</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">citation_detail: str &#91;0.1&#93;</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">collective_title: str &#91;0.1&#93;</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">context: str &#91;0.1&#93;</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">doi: str &#91;0.1&#93;</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">title: str &#91;0.1&#93;</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">type: str &#91;0.1&#93;</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">year: int &#91;0.1&#93;</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">url: shared.online_resource &#91;0.1&#93;</TD></TR> 
+    
+    </TABLE>>,
+		shape=plain];
+	"science.topic":c -> "shared.citation":c	 [arrowhead=vee,
+		arrowtail=diamond,
+		dir=both,
+		label=" citations
+(0.N)",
+		labelangle=45.0,
+		labeldistance=2.2,
+		labelfloat=False];
+	"shared.responsibility"	 [label=<<TABLE BGCOLOR="white" BORDER="1" CELLBORDER="0" CELLSPACING="0">
+    
+    
+    <TR><TD ALIGN="CENTER" BORDER="1" SIDES="B" BGCOLOR="black">
+    <FONT FACE="Helvetica Bold" COLOR="white">responsibility</FONT></TD></TR>
+    
+    
+    <TR><TD ALIGN="LEFT" CELLPADDING="2">parties: shared.party &#91;1.N&#93;</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">role: shared.role_code &#91;1.1&#93;</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">when: time.time_period &#91;0.1&#93;</TD></TR> 
+    
+    </TABLE>>,
+		shape=plain];
+	"science.topic":c -> "shared.responsibility":c	 [arrowhead=vee,
+		label=" responsible
+ parties
+(0.N)",
+		labelangle=30.0,
+		labeldistance=2.2,
+		labelfloat=False];
+	"science.topic_property_set":c -> "science.topic_property":c	 [arrowhead=vee,
+		label=" properties
+(1.N)",
+		labelangle=30.0,
+		labeldistance=2.2,
+		labelfloat=False];
+	"software.software_component":c -> "software.coupling_framework":c	 [arrowhead=vee,
+		label=" coupling
+ framework
+(0.1)",
+		labelangle=30.0,
+		labeldistance=2.2,
+		labelfloat=False];
+	"software.software_component":c -> "software.software_component":c	 [arrowhead=vee,
+		label=" sub
+ components
+(0.N)",
+		labelangle=30.0,
+		labeldistance=2.2,
+		labelfloat=False];
+	"software.software_component":c -> "software.software_component":c	 [arrowhead=vee,
+		label=" depends
+ on
+(0.N)",
+		labelangle=30.0,
+		labeldistance=2.2,
+		labelfloat=False];
+	"software.component_base"	 [label=<<TABLE BGCOLOR="white" BORDER="1" CELLBORDER="0" CELLSPACING="0">
+    
+     <TR><TD ALIGN="CENTER" BGCOLOR="black">
+    <FONT FACE="Helvetica Bold" COLOR="white">&lt;&lt;abstract&gt;&gt;</FONT></TD></TR>
+    <TR><TD ALIGN="CENTER" BORDER="1" SIDES="B" BGCOLOR="black">
+    <FONT FACE="Helvetica Bold" COLOR="white">component_base</FONT></TD></TR>
+    
+    
+    <TR><TD ALIGN="LEFT" CELLPADDING="2">canonical_id: str &#91;0.1&#93;</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">description: str &#91;0.1&#93;</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">long_name: str &#91;0.1&#93;</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">name: str &#91;1.1&#93;</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">development_history: software.development_path &#91;0.1&#93;</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">release_date: datetime &#91;0.1&#93;</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">repository: shared.online_resource &#91;0.1&#93;</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">version: str &#91;0.1&#93;</TD></TR> 
+    
+    </TABLE>>,
+		shape=plain];
+	"software.component_base" -> "science.model"	 [arrowtail=empty,
+		dir=back];
+	"software.component_base" -> "software.software_component"	 [arrowtail=empty,
+		dir=back];
+	"software.component_base":c -> "shared.citation":c	 [arrowhead=vee,
+		arrowtail=diamond,
+		dir=both,
+		label=" citations
+(0.N)",
+		labelangle=45.0,
+		labeldistance=2.2,
+		labelfloat=False];
+	"software.component_base":c -> "shared.responsibility":c	 [arrowhead=vee,
+		label=" responsible
+ parties
+(0.N)",
+		labelangle=30.0,
+		labeldistance=2.2,
+		labelfloat=False];
+	"software.implementation":c -> "shared.citation":c	 [arrowhead=vee,
+		arrowtail=diamond,
+		dir=both,
+		label=" citations
+(0.N)",
+		labelangle=45.0,
+		labeldistance=2.2,
+		labelfloat=False];
+}

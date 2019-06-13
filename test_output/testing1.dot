@@ -1,0 +1,89 @@
+digraph "" {
+	graph [fontsize=8,
+		ranksep=0.3,
+		splines=True
+	];
+	node [label="\N"];
+	"designing.numerical_experiment"	 [label=<<TABLE BGCOLOR="white" BORDER="1" CELLBORDER="0" CELLSPACING="0">
+    <TR><TD ALIGN="right" BGCOLOR="black"><FONT FACE="Helvetica Italic" COLOR="white">activity.activity</FONT></TD></TR>
+    
+    <TR><TD ALIGN="CENTER" BORDER="1" SIDES="B" BGCOLOR="black">
+    <FONT FACE="Helvetica Bold" COLOR="white">numerical_experiment</FONT></TD></TR>
+    <TR><TD ALIGN="center" CELLPADDING="2" BORDER="1" SIDES="T" >
+    <FONT FACE="Times-Roman Italic" POINT-SIZE="10">inherited properties</FONT></TD></TR>
+    <TR><TD ALIGN="LEFT" CELLPADDING="2">rationale: str &#91;0.1&#93;</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">previously_known_as: str &#91;0.N&#93;</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">responsible_parties: shared.responsibility &#91;0.N&#93;</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">name: str &#91;1.1&#93;</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">long_name: str &#91;0.1&#93;</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">keywords: str &#91;0.1&#93;</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">internal_name: str &#91;0.1&#93;</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">duration: time.time_period &#91;0.1&#93;</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">description: str &#91;0.1&#93;</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">citations: shared.citation &#91;0.N&#93;</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">canonical_name: str &#91;0.1&#93;</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">alternative_names: str &#91;0.N&#93;</TD></TR> 
+    <TR><TD ALIGN="center" CELLPADDING="2" BORDER="1" SIDES="T" >
+    <FONT FACE="Times-Roman Italic" POINT-SIZE="10">properties</FONT></TD></TR>
+    <TR><TD ALIGN="LEFT" CELLPADDING="2">tier: int &#91;0.1&#93;</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">governing_mips: designing.project &#91;0.N&#93;</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">related_mips: designing.project &#91;0.N&#93;</TD></TR> 
+    <TR><TD ALIGN="center" CELLPADDING="2" BORDER="1" SIDES="T" >
+    <FONT FACE="Times-Roman Italic" POINT-SIZE="10">constraints</FONT></TD></TR>
+    <TR><TD ALIGN="LEFT" CELLPADDING="2"> cardinality: {duration=0.0}</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2"> cardinality: {rationale=1.1}</TD></TR>
+    </TABLE>>,
+		shape=plain];
+	"designing.numerical_experiment":c -> "designing.numerical_experiment":c	 [arrowhead=vee,
+		arrowtail=diamond,
+		dir=both,
+		label=" related
+ experiments
+(0.N)",
+		labelangle=45.0,
+		labeldistance=2.2,
+		labelfloat=False];
+	"designing.temporal_constraint"	 [label=<<TABLE BGCOLOR="white" BORDER="1" CELLBORDER="0" CELLSPACING="0">
+    
+    
+    <TR><TD ALIGN="CENTER" BORDER="1" SIDES="B" BGCOLOR="black">
+    <FONT FACE="Helvetica Bold" COLOR="white">temporal_constraint</FONT></TD></TR>
+    
+    
+    <TR><TD ALIGN="LEFT" CELLPADDING="2">required_calendar: time.calendar &#91;0.1&#93;</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">required_duration: time.time_period &#91;0.1&#93;</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">start_date: time.date_time &#91;0.1&#93;</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">start_flexibility: time.time_period &#91;0.1&#93;</TD></TR> 
+    <TR><TD ALIGN="center" CELLPADDING="2" BORDER="1" SIDES="T" >
+    <FONT FACE="Times-Roman Italic" POINT-SIZE="10">constraints</FONT></TD></TR>
+    <TR><TD ALIGN="LEFT" CELLPADDING="2"> cardinality: {additional_requirements=0.0}</TD></TR>
+    </TABLE>>,
+		shape=plain];
+	"designing.numerical_experiment":c -> "designing.temporal_constraint":c	 [arrowhead=vee,
+		arrowtail=diamond,
+		dir=both,
+		label=" required
+ period
+(1.1)",
+		labelangle=45.0,
+		labeldistance=2.2,
+		labelfloat=False];
+	"designing.numerical_requirement"	 [label=<<TABLE BGCOLOR="white" BORDER="1" CELLBORDER="0" CELLSPACING="0">
+    <TR><TD ALIGN="right" BGCOLOR="black"><FONT FACE="Helvetica Italic" COLOR="white">activity.activity</FONT></TD></TR>
+    
+    <TR><TD ALIGN="CENTER" BORDER="1" SIDES="B" BGCOLOR="black">
+    <FONT FACE="Helvetica Bold" COLOR="white">numerical_requirement</FONT></TD></TR>
+    <TR><TD ALIGN="center" CELLPADDING="2" BORDER="1" SIDES="T" >
+    <FONT FACE="Times-Roman Italic" POINT-SIZE="10">inherited properties</FONT></TD></TR>
+    <TR><TD ALIGN="LEFT" CELLPADDING="2">rationale: str &#91;0.1&#93;</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">previously_known_as: str &#91;0.N&#93;</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">responsible_parties: shared.responsibility &#91;0.N&#93;</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">name: str &#91;1.1&#93;</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">long_name: str &#91;0.1&#93;</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">keywords: str &#91;0.1&#93;</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">internal_name: str &#91;0.1&#93;</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">duration: time.time_period &#91;0.1&#93;</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">description: str &#91;0.1&#93;</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">citations: shared.citation &#91;0.N&#93;</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">canonical_name: str &#91;0.1&#93;</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">alternative_names: str &#91;0.N&#93;</TD></TR> 
+    <TR><TD ALIGN="center" CELLPADDING="2" BORDER="1" SIDES="T" >
+    <FONT FACE="Times-Roman Italic" POINT-SIZE="10">properties</FONT></TD></TR>
+    <TR><TD ALIGN="LEFT" CELLPADDING="2">is_conformance_requested: bool &#91;1.1&#93;</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">is_conformance_info_required: bool &#91;1.1&#93;</TD></TR><TR><TD ALIGN="LEFT" CELLPADDING="2">scope: designing.numerical_requirement_scope &#91;0.1&#93;</TD></TR> 
+    <TR><TD ALIGN="center" CELLPADDING="2" BORDER="1" SIDES="T" >
+    <FONT FACE="Times-Roman Italic" POINT-SIZE="10">constraints</FONT></TD></TR>
+    <TR><TD ALIGN="LEFT" CELLPADDING="2"> cardinality: {duration=0.0}</TD></TR>
+    </TABLE>>,
+		shape=plain];
+	"designing.numerical_experiment":c -> "designing.numerical_requirement":c	 [arrowhead=vee,
+		arrowtail=diamond,
+		dir=both,
+		label=" requirements
+(0.N)",
+		labelangle=45.0,
+		labeldistance=2.2,
+		labelfloat=False];
+	"designing.numerical_requirement" -> "designing.temporal_constraint"	 [arrowtail=empty,
+		dir=back];
+	"designing.numerical_requirement":c -> "designing.numerical_requirement":c	 [arrowhead=vee,
+		arrowtail=diamond,
+		dir=both,
+		label=" additional
+ requirements
+(0.N)",
+		labelangle=45.0,
+		labeldistance=2.2,
+		labelfloat=False];
+}

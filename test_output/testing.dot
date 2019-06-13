@@ -1,0 +1,121 @@
+digraph "" {
+	graph [fontsize=8,
+		ranksep=0.3,
+		splines=True
+	];
+	node [label="\N"];
+	"designing.numerical_experiment"	 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLPADDING="0" CELLSPACING="0">
+    #<TR><TD ALIGN="CENTER"><font point-size="10">designing::</font></TD></TR>
+    #<TR><TD ALIGN="CENTER">   numerical   </TD></TR>
+<TR><TD ALIGN="CENTER">   experiment   </TD></TR>
+</TABLE>>,
+		shape=box];
+	"designing.numerical_experiment":c -> "designing.numerical_experiment":c	 [arrowhead=vee,
+		arrowtail=diamond,
+		dir=both,
+		label=" related
+ experiments
+(0.N)",
+		labelangle=45.0,
+		labeldistance=2.2,
+		labelfloat=False];
+	"designing.project"	 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLPADDING="0" CELLSPACING="0">
+    #<TR><TD ALIGN="CENTER"><font point-size="10">designing::</font></TD></TR>
+    #<TR><TD ALIGN="CENTER">   project   </TD></TR>
+</TABLE>>,
+		shape=box];
+	"designing.numerical_experiment":c -> "designing.project":c	 [arrowhead=vee,
+		arrowtail=diamond,
+		dir=both,
+		label=" governing
+ mips
+(0.N)",
+		labelangle=45.0,
+		labeldistance=2.2,
+		labelfloat=False];
+	"designing.numerical_experiment":c -> "designing.project":c	 [arrowhead=vee,
+		arrowtail=diamond,
+		dir=both,
+		label=" related
+ mips
+(0.N)",
+		labelangle=45.0,
+		labeldistance=2.2,
+		labelfloat=False];
+	"designing.temporal_constraint"	 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLPADDING="0" CELLSPACING="0">
+    #<TR><TD ALIGN="CENTER"><font point-size="10">designing::</font></TD></TR>
+    #<TR><TD ALIGN="CENTER">   temporal   </TD></TR>
+<TR><TD ALIGN="CENTER">   constraint   </TD></TR>
+</TABLE>>,
+		shape=box];
+	"designing.numerical_experiment":c -> "designing.temporal_constraint":c	 [arrowhead=vee,
+		arrowtail=diamond,
+		dir=both,
+		label=" required
+ period
+(1.1)",
+		labelangle=45.0,
+		labeldistance=2.2,
+		labelfloat=False];
+	"designing.numerical_requirement"	 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLPADDING="0" CELLSPACING="0">
+    #<TR><TD ALIGN="CENTER"><font point-size="10">designing::</font></TD></TR>
+    #<TR><TD ALIGN="CENTER">   numerical   </TD></TR>
+<TR><TD ALIGN="CENTER">   requirement   </TD></TR>
+</TABLE>>,
+		shape=box];
+	"designing.numerical_experiment":c -> "designing.numerical_requirement":c	 [arrowhead=vee,
+		arrowtail=diamond,
+		dir=both,
+		label=" requirements
+(0.N)",
+		labelangle=45.0,
+		labeldistance=2.2,
+		labelfloat=False];
+	"designing.project":c -> "designing.numerical_experiment":c	 [arrowhead=vee,
+		arrowtail=diamond,
+		dir=both,
+		label=" required
+ experiments
+(0.N)",
+		labelangle=45.0,
+		labeldistance=2.2,
+		labelfloat=False];
+	"designing.project":c -> "designing.numerical_experiment":c	 [arrowhead=vee,
+		arrowtail=diamond,
+		dir=both,
+		label=" governed
+ experiments
+(0.N)",
+		labelangle=45.0,
+		labeldistance=2.2,
+		labelfloat=False];
+	"designing.project":c -> "designing.project":c	 [arrowhead=vee,
+		arrowtail=diamond,
+		dir=both,
+		label=" previous
+ projects
+(0.N)",
+		labelangle=45.0,
+		labeldistance=2.2,
+		labelfloat=False];
+	"designing.project":s -> "designing.project":s	 [arrowhead=vee,
+		arrowtail=diamond,
+		dir=both,
+		label=" sub
+ projects
+(0.N)",
+		labelangle=45.0,
+		labeldistance=2.2,
+		labelfloat=False];
+	"designing.numerical_requirement" -> "designing.temporal_constraint"	 [arrowtail=empty,
+		dir=back];
+	"designing.numerical_requirement":c -> "designing.numerical_requirement":c	 [arrowhead=vee,
+		arrowtail=diamond,
+		dir=both,
+		label=" additional
+ requirements
+(0.N)",
+		labelangle=45.0,
+		labeldistance=2.2,
+		labelfloat=False];
+}
