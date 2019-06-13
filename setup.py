@@ -25,7 +25,19 @@ def _get_version():
                      _read("pyosl/__init__.py"),
                      re.MULTILINE).group(1)
 
-long_description = """TODO This is the blurb that you want to see on PyPi"""
+
+long_description = """
+Python based ontology specification language, with tools
+========================================================
+
+The Python Ontology Specfication Lanaguage (pyosl) provides the documentation and implementation
+of a methodology, with tools, for manipulating an ontology expressed in python according to a
+metamodel documented in this package.
+
+It should be used with one or more ontologies, defined in python as described in the 
+documentation, and identified via the configuration.
+
+"""
 
 setup(name = "pyosl",
       long_description = long_description,
@@ -38,7 +50,7 @@ setup(name = "pyosl",
       url          = "https://ncas-cms.github.io/pyosl",
       download_url = "https://pypi.org/project/pyosl/#files",
       platforms    = ["Linux", "MacOS", "Windows"],
-      keywords     = ['metadata', 'science',
+      keywords     = ['metadata', 'science', 'simulation', 'ontology',
                       'oceanography', 'meteorology', 'climate'],
       classifiers  = ["Development Status :: 4 - Beta",
                       "Intended Audience :: Science/Research", 
@@ -52,5 +64,5 @@ setup(name = "pyosl",
                       'pyosl/uml',
                       'pyosl/test',
                       ],
-      package_data =  {'pyosl': ['etc/*.ini']},
+      package_data = {'pyosl': ['etc/*.ini']},
 )

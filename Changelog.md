@@ -1,7 +1,6 @@
-version ???
--------------
+version 0.0.0.X
+---------------
 
-**Date**
+**June 2019**
 
-* What's changed 2
-* What's changed 2		
+* Initial setup of package and test cases.	
