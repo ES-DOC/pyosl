@@ -6,6 +6,7 @@ import configparser
 
 from . import __file__
 
+
 def setup_ontology(section='TESTING', name='cim'):
 
     """ Read ontology choice from configuration and load ontology """
@@ -63,6 +64,7 @@ def load_ontology(modulename, ontodir):
             for n, k in functions:
                 key = '{}.{}'.format(p, n)
                 packages[p][key] = k()
+                packages[p][key]['__doc__'] = k.__doc__
 
     return name, version, documentation, packages
 
