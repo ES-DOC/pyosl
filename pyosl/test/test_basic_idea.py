@@ -59,7 +59,7 @@ class Factory:
     def _build(klass):
         """ Builds a class definition for the factory"""
         properties = Factory.ontology.available[klass]
-        newclass = type(klass, (Base,), {'name':properties['name'],'_osl':properties})
+        newclass = type(klass, (Base,), {'name':properties['name'],'_osl':properties,'__doc__':'my doc string'})
         for p in properties['properties']:
             setattr(newclass, p[0], PropertyDescriptor(p))
         return newclass
@@ -90,6 +90,10 @@ class TestCase(unittest.TestCase):
         self.s2.side_length = 2
         assert self.s.side_length == 1
         assert self.s2.side_length == 2
+
+    def test_docstring(self):
+        assert self.s.__doc__=='my doc string'
+        self.s.__doc__
 
 
 if __name__ == "__main__":

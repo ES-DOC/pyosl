@@ -85,9 +85,11 @@ class BasicUML:
 
         # find all the extra ones that are in the properties of the ones we
         # asked for
-        if expand_associated:
+        if expand_associated or expand_base:
             for c in self.classes2view:
-                associated = self.__find_associated_classes(self.classes2view[c], expand_base=expand_base)
+                associated = self.__find_associated_classes(self.classes2view[c],
+                                                            associations=expand_associated,
+                                                            bases=expand_base)
                 for k, v in associated.items():
                     if k not in self.allup and k not in Factory.ontology.builtins:
                         self.allup[k] = v
@@ -164,23 +166,24 @@ class BasicUML:
 
         self.invisible_edges = relationships
 
-    def generate_dot(self):
+    def generate_dot(self, dot_out_please=False):
         """ Generate the actual dot file """
 
         self.__add_nodes()
         self.__add_edges()
         self.__fix_layout()
 
-        self.G.write('{}.dot'.format(self.filestem))
+        if dot_out_please:
+            self.G.write('{}.dot'.format(self.filestem))
 
-    def generate_pdf(self):
+    def generate_pdf(self, dot_out_please=False):
 
         """ Generates the output PDF file """
 
-        self.generate_dot()
+        self.generate_dot(dot_out_please)
         self.G.draw('{}.pdf'.format(self.filestem), prog='dot')
 
-    def __find_associated_classes(self, klass, expand_base=True):
+    def __find_associated_classes(self, klass, associations=True, bases =True):
 
         """ For a given class, find all the associated classes,
         possibly including base classes, but not all hierarchy """
@@ -189,16 +192,17 @@ class BasicUML:
 
         if hasattr(klass, '_osl'):
             meta = klass._osl
-            if hasattr(meta, 'properties'):
-                candidates = [p[1] for p in meta.properties]
-                for candidate in candidates:
-                    if candidate.startswith('linked_to'):
-                        candidate = candidate[10:-1]
-                    if candidate not in extras:
-                        k = Factory.build(candidate)
-                        extras[candidate] = k
+            if associations:
+                if hasattr(meta, 'properties'):
+                    candidates = [p[1] for p in meta.properties]
+                    for candidate in candidates:
+                        if candidate.startswith('linked_to'):
+                            candidate = candidate[10:-1]
+                        if candidate not in extras:
+                            k = Factory.build(candidate)
+                            extras[candidate] = k
 
-            if expand_base and hasattr(meta, 'base'):
+            if bases and hasattr(meta, 'base'):
                 if meta.base:
                     if meta.base not in extras:
                         extras[meta.base] = Factory.build(meta.base)

@@ -69,24 +69,77 @@ class TestGraphCases(unittest.TestCase):
 
     def test_software(self):
         """ Examine the software package"""
-        d = BasicUML('test_output/testsw', option='uml')
+        d = BasicUML('test_output/doc_software', option='uml')
         d.set_visible_package('software', restrict=True)
         d.set_association_edges(multiline=True)
         d.generate_pdf()
 
     def test_science(self):
         """ Examine the science package"""
-        d = BasicUML('test_output/testsci', option='uml')
-        d.set_visible_package('science', restrict=False)
+        d = BasicUML('test_output/doc_science', option='uml')
+        d.set_visible_package('science', restrict=True)
+        d.set_association_edges(multiline=True)
+        d.generate_pdf()
+
+    def test_platform(self):
+        """ Examine the platform package"""
+        d = BasicUML('test_output/doc_platform',option='uml')
+        d.set_visible_package('platform', restrict=True)
         d.set_association_edges(multiline=True)
         d.generate_pdf()
 
     def test_design(self):
         """ Examine the design package"""
-        d = BasicUML('test_output/testdes', option='uml')
+        d = BasicUML('test_output/doc_design', option='uml')
         d.set_visible_package('designing', restrict=True, show_base_links=False)
         d.set_association_edges(multiline=True)
         d.fix_layout(3, ['designing.numerical_requirement_scope',])
+        d.generate_pdf()
+
+    def test_activity(self):
+        d = BasicUML('test_output/doc_activity', option='uml')
+        d.set_visible_package('activity', restrict=True, show_base_links=False)
+        d.set_association_edges(multiline=True)
+        d.generate_pdf()
+
+    def test_data(self):
+        d = BasicUML('test_output/doc_data', option='uml')
+        d.set_visible_package('data', restrict=True, show_base_links=False)
+        d.set_association_edges(multiline=True)
+        d.generate_pdf()
+
+    def test_simulation(self):
+        """ Understand how the various simulation pieces go together"""
+        d = BasicUML('test_output/understand_simulation', option='uml')
+        d.set_visible_classes(['activity.ensemble_axis','activity.ensemble_member',
+                               'activity.ensemble',
+                               'data.simulation',
+                               'activity.parent_simulation',
+                               'activity.conformance',
+                               ], expand_base=True, expand_associated=False,
+                              )
+        d.set_association_edges(multiline=True)
+        d.generate_pdf()
+
+    def test_models(self):
+        """ Explain relationships between some key entities in the model/software world."""
+        d = BasicUML('test_output/understand_models', option='uml')
+        d.set_visible_classes(['science.model', 'software.software_component',
+                               'software.component_base','science.realm','science.realm_coupling',
+                               'science.topic','science.model_types',
+                               'software.coupling_framework','software.composition','software.implementation',
+                               'software.development_path'], expand_base=False, expand_associated=False)
+        d.set_association_edges(multiline=True)
+        d.generate_pdf()
+
+    def test_simple_perf(self):
+        """ Explain the relationship between performande and software as it currently stands. """
+        d = BasicUML('test_output/understand_perf', option='uml')
+        d.set_visible_classes(['science.model', 'software.software_component','science.realm',
+                               'platform.performance','platform.component_performance',
+                               'software.composition', 'software.implementation',
+                               ], expand_base=True, expand_associated=False)
+        d.set_association_edges(multiline=True)
         d.generate_pdf()
 
 

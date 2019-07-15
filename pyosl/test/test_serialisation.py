@@ -64,6 +64,16 @@ class TestESDArchive(unittest.TestCase):
                         print(f"Error reading {docfile}")
                         raise
 
+    def test_model(self):
+        """ Test manipulating a model document."""
+        mdir = self.folders[1]
+        models = mdir.glob('*.json')
+        for model in models:
+            with model.open() as f:
+                json_version = json.load(f)
+                py_version = esd_decode(Factory, json_version)
+            break
+
 
 class TestOSLroundtrip(unittest.TestCase):
     """ Tests round tripping an original ESD document via OSL encode/decode"""
@@ -90,8 +100,6 @@ class TestOSLroundtrip(unittest.TestCase):
         for doc in docs:
             odoc = osl_decode_json(Factory,doc)
             print(odoc)
-
-
 
 
 if __name__=="__main__":

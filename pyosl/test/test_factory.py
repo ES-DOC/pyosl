@@ -1,6 +1,6 @@
 import unittest
 
-from pyosl import Factory,Base
+from pyosl import Factory, Base
 from pyosl import Ontology
 
 
@@ -95,6 +95,9 @@ class TestOntoBase(unittest.TestCase):
         self.assertTrue(self.f.core_validator('point of contact', 'shared.role_code'))
         self.assertFalse(self.f.core_validator('aviator', 'shared.role_code'))
         self.assertTrue(self.f.core_validator('Not on your nelly', 'activity.conformance_type'))
+
+    def test_info(self):
+        print(self.k.__doc__)
 
 
 class TestNewDocument(unittest.TestCase):

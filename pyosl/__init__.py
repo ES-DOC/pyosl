@@ -23,7 +23,8 @@ from .esd_encoder import (encamel,
                           esd_encode)
 from .loader      import (setup_ontology,
                           load_ontology)
-from .ontology    import  meta_fix
+from .ontology    import  (meta_fix,
+                           info)
 from .osl_decoder import (check_target_understood,
                           osl_decode,
                           osl_decode_json)
