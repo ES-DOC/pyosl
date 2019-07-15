@@ -10,6 +10,56 @@ def meta_fix(constructor):
     return constructor
 
 
+def info(klass, attribute=None):
+    """" Return  information about a class. Approximates what one might do with
+    a docstring, but allows us to get past descriptors."""
+
+    if hasattr(klass, '_osl'):
+        oslmeta = klass._osl
+    elif isinstance(klass ,OntoMeta):
+        # assume we have a constructor instance as part of class instantiation
+        oslmeta = klass
+    else:
+        raise ValueError(f'Object  {klass} is not a  pyosl entity')
+
+    if attribute:
+        if hasattr(oslmeta,'properties'):
+            for alist in  [oslmeta.properties, oslmeta.inherited_properties]:
+                for p in alist:
+                    k, d = p[0], f'{p[0]} - {p[3]} (cardinality {p[2]}, type {p[1]})'
+                    if k == attribute:
+                        return d
+            raise ValueError(f'No such attribute {attribute} for {klass}')
+        elif hasattr(oslmeta,'members'):
+            for p in  oslmeta.members:
+                k, d = p[0], f'{p[0]} - {p[1]}'
+                if k ==  attribute:
+                    return d
+            raise ValueError(f'No member {attribute} in {klass}')
+        else:
+            raise ValueError(f'{klass} is not a pyosl entity')
+
+    docstring = f"\n__ Class {oslmeta.class_name} ({oslmeta.type_key}) __\n\n {oslmeta.__doc__.rstrip().lstrip()}\n\n"
+    if hasattr(oslmeta, 'properties'):
+        for alist, ptype in [(oslmeta.properties, 'Properties:\n'),
+                             (oslmeta.inherited_properties, 'Inherited Properties:\n')]:
+            docstring += ptype
+            for p in alist:
+                docstring += f'  {p[0]} - {p[3]} (cardinality {p[2]}, type {p[1]})\n'
+        if hasattr(oslmeta,'constraints'):
+            if oslmeta.constraints:
+                docstring += 'Constraints:\n'
+                for p in  oslmeta.constraints:
+                    docstring += f'  {p}\n'
+    elif hasattr(oslmeta, 'members'):
+        docstring += 'Members\n'
+        for p in oslmeta.members:
+            docstring +=  f'  {p[0]} - {p[1]}\n'
+    else:
+        raise ValueError('Unknown OSL entity')
+    return docstring
+
+
 class OntoMeta:
     """ Use to hold all the ontology metadata that provides class typing"""
     def __init__(self, constructor):

@@ -2,13 +2,15 @@ from uuid import uuid4
 
 from .errors import DocRefNoType
 from .anacronisms import group_hack
-from .ontology import Ontology, OntoMeta, OntoBase
+from .ontology import Ontology, OntoMeta, OntoBase, info
 from .mp_property import PropertyDescriptor, Property
 
 
 class Base(OntoBase):
-
+    """ Provides a base class for any factory specific instance specific content"""
     def __init__(self):
+        """ Initialise document metadata"""
+        # Easier to do here than in the factory, avoids recursion issues.
         if self._osl.is_document:
             self._meta = Factory.build('shared.doc_meta_info')
 
@@ -157,9 +159,12 @@ class Factory:
             if base not in Factory.known_subclasses:
                 Factory.known_subclasses[base] = Factory.__build(base)
             meta = OntoMeta(Factory.ontology.constructors[package][key])
-            klass = type(key, (Factory.known_subclasses[base],), {'_osl': meta})
+            klass = type(key, (Factory.known_subclasses[base],), {'_osl': meta,})
         else:
             klass = type(key, (Factory.ontology.klasses[key],), {})
+
+        # python 3.3 or later to get mutable docstrings
+        klass.__doc__ = info(klass)
 
         if Factory.descriptor:
 
@@ -171,7 +176,6 @@ class Factory:
             if klass._osl.is_document:
                 p = ('_meta', 'shared.doc_meta_info', '1.1', 'Document Metadata')
                 setattr(klass, p[0], Factory.descriptor(p))
-
 
         return klass
 
