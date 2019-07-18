@@ -92,8 +92,8 @@ def uml_class_box_label(klass,
 
     template = """<<TABLE BGCOLOR="{{bg_col}}" BORDER="1" CELLBORDER="0" CELLSPACING="0">
     {% if base %}<TR><TD ALIGN="right" BGCOLOR="{{hdr_col}}"><FONT FACE="Helvetica Italic" COLOR="{{hdr_fc}}">{{base}}</FONT></TD></TR>{% endif %}
-    {% if is_abstract %} <TR><TD ALIGN="CENTER" BGCOLOR="{{hdr_col}}">
-    <FONT FACE="Helvetica Bold" COLOR="white">&lt;&lt;abstract&gt;&gt;</FONT></TD></TR>{% endif %}
+    {% if stereotypes %} <TR><TD ALIGN="CENTER" BGCOLOR="{{hdr_col}}">
+    <FONT FACE="Helvetica Bold" COLOR="white">&lt;&lt;{{stereotypes}}&gt;&gt;</FONT></TD></TR>{% endif %}
     <TR><TD ALIGN="CENTER" BORDER="1" SIDES="B" BGCOLOR="{{hdr_col}}">
     <FONT FACE="Helvetica Bold" COLOR="{{hdr_fc}}">{{ontology_class}}</FONT></TD></TR>
     {% if inherited %}<TR><TD ALIGN="center" CELLPADDING="2" BORDER="1" SIDES="T" >
@@ -166,9 +166,17 @@ def uml_class_box_label(klass,
     if not properties and not constraints and not inherited:
         properties = [' ', ]
 
+    # any stereotypes?
+    stereotypes = []
+    if klass._osl.is_abstract:
+        stereotypes.append('abstract')
+    if klass._osl.is_document:
+        stereotypes.append('document')
+    stereotypes = ', '.join(stereotypes)
+
     t = Template(template)
 
-    label = t.render(k=klass, ontology_class=klass._osl.class_name, is_abstract=klass._osl.is_abstract, bg_col=bg_col, hdr_col=hdr_col,
+    label = t.render(k=klass, ontology_class=klass._osl.class_name, stereotypes=stereotypes, bg_col=bg_col, hdr_col=hdr_col,
                      hdr_fc=hdr_fc, base=base, properties=properties, constraints=constraints, inherited=inherited)
 
     return label
