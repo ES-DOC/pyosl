@@ -3,7 +3,7 @@
 # The goal is to remove the need for any of these.
 
 def group_hack(klass_name):
-    """ Handles the pyeseoc method of dealing with the
+    """ Handles the pyesdoc method of dealing with the
     issue outlined in https://github.com/ES-DOC/esdoc-cim-v2-schema/issues/30"""
     group_hack = klass_name.split(':')
     if len(group_hack) > 1:
