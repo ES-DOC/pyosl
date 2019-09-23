@@ -23,7 +23,7 @@ def de_camel_attribute(n):
     return d2
 
 
-def _decode(factory, content, klass):
+def _decode(factory, content, klass, debug=True):
     """ Decode json content into a python instance of that content"""
 
     instance = factory.build(klass)
@@ -54,12 +54,22 @@ def _decode(factory, content, klass):
                     alist.append(esd_decode(factory, v))
                 else:
                     alist.append(v)
-            setattr(instance, name, alist)
+            try:
+                setattr(instance, name, alist)
+            except:
+                print('wait')# this is debug code for what looks like data
+                raise
         else:
             if instance._osl.type_key == 'cim.2.shared.doc_reference':
                 if name == 'type':
                     value = translate_type_to_osl_from_esd(value)
             setattr(instance, name, value)
+
+    if instance and debug:
+        ### Used to look for classes which may be problematic in some way.
+        if 'software' in instance._osl.type_key:
+            print(f'Deserialised {instance._osl.type_key}')
+
     return instance
 
 
