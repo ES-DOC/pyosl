@@ -9,6 +9,7 @@ from pyosl import osl_decode_json
 
 import json
 
+
 Factory.reset_descriptor()
 
 class TestESDread(unittest.TestCase):
@@ -72,7 +73,7 @@ class TestESDArchive(unittest.TestCase):
             with model.open() as f:
                 json_version = json.load(f)
                 py_version = esd_decode(Factory, json_version)
-            break
+            #break
 
 
 class TestOSLroundtrip(unittest.TestCase):
@@ -102,5 +103,5 @@ class TestOSLroundtrip(unittest.TestCase):
             print(odoc)
 
 
-if __name__=="__main__":
+if __name__ == "__main__":
     unittest.main()
