@@ -1,6 +1,7 @@
 import math
 import pygraphviz as pgv
 from copy import copy
+from datetime import datetime
 
 from .uml_utils import PackageColour
 from .uml_base  import UmlBase
@@ -12,7 +13,7 @@ class BasicUML:
 
     """ Draws a basic UML diagram for the chosen set of classes """
 
-    def __init__(self, filestem, option='uml', **kwargs):
+    def __init__(self, filestem, option='uml', title='', **kwargs):
 
         """ Set up with output filename, and any default graph properties"""
 
@@ -41,8 +42,9 @@ class BasicUML:
         self.default_node_attributes = []
         self.topset = {}
         self.multiline = False
-        self.baseControl={}
-        self.hidden_properties={}
+        self.baseControl = {}
+        self.hidden_properties = {}
+        self.equivalents = []
 
         self.singleton_width = 4
         self.bottom_nodes = []
@@ -50,9 +52,10 @@ class BasicUML:
         initial_graph_properties = {
             'strict': False,
             'splines': True,
-            'fontsize': 8,
+            'fontsize': 12,
             'directed': True,
             'ranksep': 0.3,
+            'rankdir':'TB',
             }
 
         for k in kwargs:
@@ -64,6 +67,12 @@ class BasicUML:
             self.default_node_attributes = {'shape': 'ellipse', 'style': 'filled'}
         elif option == 'box':
             self.default_node_attributes = {'shape': 'box'}
+
+        if title:
+            version, now = Factory.ontology.full_version, datetime.now().strftime("%d/%m/%Y %H:%M")
+            initial_graph_properties['label'] = f'{title}\n{now} (CIM {version})'
+            initial_graph_properties['labelloc'] = 'b'
+            initial_graph_properties['labeljust'] = 'r'
 
         self.G = pgv.AGraph(**initial_graph_properties)
 
@@ -103,18 +112,19 @@ class BasicUML:
 
         self.__find_class_edges(show_links=show_base_links)
 
-    def set_visible_package(self, package, omit_classes=[], restrict=False, show_base_links=True):
+    def set_visible_package(self, package, omit_classes=[], extra_classes=[], restrict=False, show_base_links=True):
         """" Choose all classes from one package. By default this will
         also include any base classes from other packages, and any
         classes from other packages which are properties. These
         can be removed in one go, using restrict=True, or handled
-        individually via omit_classes."""
+        individually via omit_classes. You can add extra classes if desired."""
 
         packages = Factory.ontology.get_package_contents(package)
         kw = {}
         if restrict:
             kw = {'expand_associated': False, 'expand_base': False}
-        self.set_visible_classes(packages, omit_classes=omit_classes, show_base_links=show_base_links, **kw)
+        self.set_visible_classes(packages+extra_classes,
+                                 omit_classes=omit_classes, show_base_links=show_base_links, **kw)
 
 
     def set_association_edges(self, multiline=False):
@@ -166,12 +176,22 @@ class BasicUML:
 
         self.invisible_edges = relationships
 
+    def direct_samerank(self, equivalents):
+        """ Add direct control over layout by forcing certain entities to have the same rank.
+        equivalents is a list of nodes which have the same rank. E.g.
+        equivalents = [(A,B), (C,D,E)] would force nodes A and B to share same rank
+        and nodes C,D and E the same rank"""
+        self.equivalents = equivalents
+
     def generate_dot(self, dot_out_please=False):
         """ Generate the actual dot file """
 
         self.__add_nodes()
         self.__add_edges()
         self.__fix_layout()
+
+        for a_tuple in self.equivalents:
+            self.G.add_subgraph(list(a_tuple), rank='same')
 
         if dot_out_please:
             self.G.write('{}.dot'.format(self.filestem))

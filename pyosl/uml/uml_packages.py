@@ -1,5 +1,6 @@
 from jinja2 import Template
 import pygraphviz as pgv
+from datetime import datetime
 
 from ..factory import Factory
 
@@ -40,6 +41,12 @@ class PackageUML:
             'fontsize': 8,
             'directed': True,
             'ranksep': 0.3}
+
+
+        version, now = Factory.ontology.full_version, datetime.now().strftime("%d/%m/%Y %H:%M")
+        initial_graph_properties['label'] = f'CIM {version}\n{now}'
+        initial_graph_properties['labelloc'] = 'b'
+        initial_graph_properties['labeljust'] = 'r'
 
         self.G = pgv.AGraph(**initial_graph_properties)
 

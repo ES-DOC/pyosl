@@ -12,7 +12,7 @@ class PackageColour(object):
         """
         self.palette = ['darkseagreen','palegoldenrod','lightsalmon','thistle',
                         'lightsteelblue','burlywood','lightgray','seashell',
-                        'navajowhite3','powderblue']
+                        'navajowhite3','powderblue', 'darkkhaki','sandybrown',]
 #                       wheat', 'sandybrown', 'darkkhaki', 'aliceblue', 'seashell', 'plum1',
 #                       'lightgoldenrodyellow', 'lightgrey', 'rosybrown', 'lightcyan']
         assert len(packages) <= len(self.palette), "Too many packages (%s) to colour" % len(packages)
