@@ -2,10 +2,10 @@ import unittest
 from pathlib import Path
 
 from pyosl import Factory
-from pyosl import esd_decode, de_camel_attribute
-from pyosl import esd_encode
-from pyosl import osl_encode2json, bundle_instance
-from pyosl import osl_decode_json
+from pyosl.tools import esd_decode, de_camel_attribute
+from pyosl.tools import esd_encode
+from pyosl.tools import osl_encode2json, bundle_instance
+from pyosl.tools import osl_decode_json
 
 import json
 

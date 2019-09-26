@@ -2,7 +2,8 @@ import uuid
 from datetime import date
 from copy import deepcopy
 
-from .factory import Factory
+from pyosl import Factory
+
 
 def named_build(klass, name):
     """ Minimise effort for building a class """
@@ -34,6 +35,7 @@ def osl_fill_from(self, other):
     """ FIll non-present-attributes in self, from other"""
     for p in self._osl.properties:
         conditional_copy(self, other, p[0])
+    return self
 
 def online(url, name, **kw):
     """ Convenience class for building a shared online reference"""

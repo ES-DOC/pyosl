@@ -1,7 +1,7 @@
 # Encode json in the pyesdoc format
 # Based on Mark Greenslade's pyesdoc/_codecs/dictionary/encoder.py
 
-from .mp_property import Property
+from pyosl import Property
 
 def _is_encodable_attribute(name):
     """Returns flag indicating whether an attribute is encodable.

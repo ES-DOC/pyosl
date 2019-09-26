@@ -184,6 +184,15 @@ class TestGraphCases(unittest.TestCase):
         d.generate_pdf()
 
 
+    def test_twoeg(self):
+        """ Produce two UML diagrams for the core paper"""
+        d = BasicUML('test_output/twoeg', option='uml', coloured=False)
+        d.set_visible_classes(['time.date_time', 'iso.md_cellgeometry_code'],
+                              expand_base=True, expand_associated=False)
+        d.set_association_edges(multiline=True)
+        d.generate_pdf()
+
+
 class TestPackageUML(unittest.TestCase):
 
     def setUp(self):

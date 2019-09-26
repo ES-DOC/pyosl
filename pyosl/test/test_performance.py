@@ -1,6 +1,7 @@
 import unittest
 
-from pyosl import Factory, online
+from pyosl import Factory
+from pyosl.tools import online
 
 
 def make_performance():

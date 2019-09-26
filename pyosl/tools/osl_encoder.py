@@ -1,6 +1,6 @@
 import json
 
-from .mp_property import Property
+from pyosl import Property
 from .osl_tools import get_reference_for
 
 
