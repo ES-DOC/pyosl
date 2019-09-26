@@ -3,6 +3,7 @@
 import re
 
 from pyosl import DocRefNoType
+from .osl_tools import make_time
 
 
 def translate_type_to_osl_from_esd(doc_type):
@@ -63,7 +64,14 @@ def _decode(factory, content, klass, debug=True):
             if instance._osl.type_key == 'cim.2.shared.doc_reference':
                 if name == 'type':
                     value = translate_type_to_osl_from_esd(value)
-            setattr(instance, name, value)
+            try:
+                setattr(instance, name, value)
+            except ValueError as err:
+                # Some esd encodings do not respect the time package. Is this one of those?
+                try:
+                    value = make_time(value)
+                except:
+                    raise err
 
     if instance and debug:
         ### Used to look for classes which may be problematic in some way.

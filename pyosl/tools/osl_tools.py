@@ -1,8 +1,20 @@
 import uuid
 from datetime import date
 from copy import deepcopy
+import re
 
 from pyosl import Factory
+
+
+def make_time(astring, is_offset=False):
+    ok1 = re.match(r'^\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}$', astring)
+    ok2 = re.match(r'^\d{4}-\d{2}-\d{2}$', astring)
+    if ok1 or ok2:
+        k = Factory.build('time.date_time')
+        k.is_offset = is_offset
+        k.value = astring
+        return k
+    raise ValueError(f'Attempt to set date_time with {astring}')
 
 
 def named_build(klass, name):
