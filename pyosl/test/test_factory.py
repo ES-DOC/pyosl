@@ -94,7 +94,7 @@ class TestOntoBase(unittest.TestCase):
         a, b = self.f.build('shared.role_code'), self.f.build('activity.conformance_type')
         self.assertTrue(self.f.core_validator('point of contact', 'shared.role_code'))
         self.assertFalse(self.f.core_validator('aviator', 'shared.role_code'))
-        self.assertTrue(self.f.core_validator('Not on your nelly', 'activity.conformance_type'))
+        self.assertTrue(self.f.core_validator('Not on your nelly', 'software.programming_language'))
 
     def test_info(self):
         print(self.k.__doc__)
