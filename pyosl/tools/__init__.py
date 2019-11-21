@@ -19,3 +19,5 @@ from .osl_tools import (named_build,
                         numeric_value,
                         conditional_copy,
                         get_reference_for)
+
+from .osl_to_rdf import (Triples, NAMESPACE)

@@ -4,7 +4,7 @@ from pyosl import Property
 from .osl_tools import get_reference_for
 
 
-SERIAL_VERSION = 'json by osl_encode V0.2'
+SERIAL_VERSION = 'json by osl_encode V0.3'
 
 
 def _is_encodable_attribute(name):
@@ -85,7 +85,7 @@ def osl_encode(doc, shard_to_bundle=False):
             obj['_meta'] = {}
         obj['_meta']['type'] = doc._osl.type_key
         obj['_meta']['source_key'] = SERIAL_VERSION
-        print(klass, obj['_meta']['type'])
+
     if doc._osl.is_document and shard_to_bundle:
         bundle = [obj,] + bundle
         dr_obj = get_reference_for(doc)
