@@ -86,6 +86,28 @@ class TestBase(unittest.TestCase):
         del (self.sp.name)
         self.assertEqual(None,self.sp.name)
 
+    def test_open_enumerations(self):
+        """ Test we can assign any string to a value from an open enumeration"""
+        language = self.o.build('software.programming_language')
+        assert language._osl.is_open
+        component = self.o.build('software.software_component')
+        component.language = 'abc'
+
+
+    def test_closed_enumeration(self):
+        """ Test we can only add members to a value which should be from a closed enumeration"""
+        conf = self.o.build('activity.conformance_type')
+        assert not conf._osl.is_open
+        conformance = self.o.build('activity.conformance')
+        conformance.conformance_achieved = 'Conformed'
+        try:
+            conformance.conformance_achieved = 'rubbish'
+        except ValueError:
+            pass
+        else:
+            raise ValueError('Failure to raise conformance achieved Error for "rubbish"')
+
+
 
 if __name__ == "__main__":
     unittest.main()
