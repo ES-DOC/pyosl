@@ -2,6 +2,7 @@ import unittest
 from pyosl import Factory
 from pyosl.tools import named_build, calendar_period, osl_fill_from, online, numeric_value, get_reference_for
 from pyosl.tools import osl_encode2json, bundle_instance, Triples
+from pyosl.uml import TriplesDelux
 
 
 def make_archer():
@@ -26,8 +27,8 @@ def make_archer():
     highmem_nodes = named_build('platform.compute_pool', 'High Memory Nodes')
     normal_nodes = named_build('platform.compute_pool', 'Normal Nodes')
     work = named_build('platform.storage_pool', 'Work Filesystems')
-    home = named_build('platform.storage_pool',' Home Storage')
-    dragonfly = named_build('platform.interconnect',' Dragonfly')
+    home = named_build('platform.storage_pool','Home Storage')
+    dragonfly = named_build('platform.interconnect','Dragonfly')
 
     # and build our description of ARCHER:
     archer.name = 'Archer'
@@ -84,8 +85,8 @@ def make_archer2():
     highmem_nodes = named_build('platform.compute_pool', 'High Memory Nodes')
     normal_nodes = named_build('platform.compute_pool', 'Normal Nodes')
     work = named_build('platform.storage_pool', 'Work Filesystems')
-    home = named_build('platform.storage_pool', ' Home Storage')
-    dragonfly = named_build('platform.interconnect', ' Dragonfly')
+    home = named_build('platform.storage_pool', 'Home Storage')
+    dragonfly = named_build('platform.interconnect', 'Dragonfly')
 
     # and build our description of ARCHER:
     archer.name = 'Archer'
@@ -154,6 +155,10 @@ class TestTriples(unittest.TestCase):
 #TODO: Check that the doc_meta_infos (and everything else) are linked right.
 #TODO: Proper triple serialisation using something we can input to a visualisation package (or do my own).
 
+    def test_graphtriples(self):
+        g = TriplesDelux(self.a)
+        g.make_graph(dot_required=True)
+        g.make_pdf()
 
 
 if __name__ == "__main__":

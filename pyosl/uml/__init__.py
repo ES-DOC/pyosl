@@ -22,3 +22,5 @@ from .uml_base     import UmlBase
 from .uml_packages import package_label, PackageUML
 
 from .uml_diagrams import BasicUML
+
+from .triples_to_dot import TriplesDelux
