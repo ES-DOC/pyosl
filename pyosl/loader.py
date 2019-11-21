@@ -1,19 +1,23 @@
 import importlib.util
 import os, sys
-from inspect import getmembers, isfunction
+from inspect import getmembers, isfunction, getfile, currentframe
 import unittest
 import configparser
 
-from . import __file__
 
-
-def setup_ontology(section='TESTING', name='cim'):
+def setup_ontology(usesection='TESTING', name='cim'):
 
     """ Read ontology choice from configuration and load ontology """
 
     config = configparser.ConfigParser()
 
-    config_file = os.path.abspath(os.path.join(os.path.dirname(__file__), 'etc/configuration.ini'))
+    thisfile = os.path.abspath(getfile(currentframe()))
+    osldir = os.path.dirname(thisfile)
+    config_file = os.path.join(osldir, 'etc/configuration.ini')
+
+    section = os.getenv('PYOSL_SECTION')
+    if not section:
+        section = usesection
 
     config.read(config_file)
     ontodir = config[section][name]

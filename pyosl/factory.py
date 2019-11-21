@@ -99,7 +99,7 @@ class Factory:
     @staticmethod
     def build(klass_name):
 
-        """ Builds a specific classs and adds it to the classes known to the factory. """
+        """ Builds a specific class and adds it to the classes known to the factory. """
 
         klass_name = group_hack(klass_name)
         klass_name = Factory.ontology.check_and_strip(klass_name)
