@@ -207,6 +207,7 @@ def uml_simple_box(klass, package_font_size=10, left_pad=3, right_pad=3, **kw):
 
     return label
 
+
 def uml_enum_box_label(klass, with_definitions=False, definition_nchars=60, header_nchars=90, bw=True):
 
     """ Return an enum label, with definitions if approriate, and using
@@ -214,6 +215,8 @@ def uml_enum_box_label(klass, with_definitions=False, definition_nchars=60, head
     for the enum description definition."""
 
     template = """<<TABLE BGCOLOR="{{bg_col}}" BORDER="1" CELLBORDER="0" CELLSPACING="0">
+    <TR><TD ALIGN="CENTER" BGCOLOR="{{hdr_col}}" {{colspan}}>
+    <FONT FACE="Helvetica Bold" COLOR="white">&lt;&lt;enumeration&gt;&gt;&nbsp;&nbsp;</FONT></TD></TR>
     <TR><TD ALIGN="CENTER" BGCOLOR="{{hdr_col}}" {{colspan}}>
     <FONT FACE="Helvetica Bold" COLOR="white">{{k._osl.class_name}}</FONT></TD></TR>
     {% if definition %}<TR><TD COLSPAN="2" BORDER="1" SIDES="B" BALIGN="LEFT">{{definition}}</TD></TR>{% endif %}

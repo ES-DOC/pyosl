@@ -13,7 +13,7 @@ class BasicUML:
 
     """ Draws a basic UML diagram for the chosen set of classes """
 
-    def __init__(self, filestem, option='uml', title='', **kwargs):
+    def __init__(self, filestem, option='uml', title='', coloured=True, **kwargs):
 
         """ Set up with output filename, and any default graph properties"""
 
@@ -61,8 +61,9 @@ class BasicUML:
         for k in kwargs:
             initial_graph_properties[k] = kwargs[k]
 
+        self.coloured = coloured
         if option == 'uml':
-            self.default_node_attributes = {'shape':'plain'}
+            self.default_node_attributes = {'shape': 'plain'}
         elif option == 'name_only':
             self.default_node_attributes = {'shape': 'ellipse', 'style': 'filled'}
         elif option == 'box':
@@ -142,7 +143,7 @@ class BasicUML:
         """ Get properties to hide (because they exist as
         links on the diagram, and add edges if appropriate.
         """
-        hidden_properties=[]
+        hidden_properties = []
         for p in self.allup[c]._osl.properties:
             target = p[1]
             if target.startswith('linked_to'):
@@ -154,7 +155,6 @@ class BasicUML:
                         (c, target, p[0], p[2]))
                 hidden_properties.append(p[0])
         return hidden_properties
-
 
     def direct_edge_ports(self, edges):
 
@@ -308,7 +308,11 @@ class BasicUML:
             if self.viewing_option == "bubble":
                 if self.allup[c]._osl.type == 'enum':
                     node.attr['shape'] = "tab"
-                node.attr['fillcolor'] = picker.colourise(c)
+            elif self.viewing_option == 'uml':
+                if self.coloured:
+                    node.attr['fillcolor'] = picker.colourise(c)
+                else:
+                    node.attr['fillcolor'] = 'white'
 
     def __add_edges(self):
 

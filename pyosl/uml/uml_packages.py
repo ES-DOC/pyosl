@@ -21,6 +21,7 @@ def package_label(package_name, package_contents):
 
     return label
 
+
 class PackageUML:
     """ provides view of entire ontology and individual package lists"""
 
