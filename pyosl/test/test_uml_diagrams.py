@@ -87,8 +87,10 @@ class TestGraphCases(unittest.TestCase):
     def test_platform(self):
         """ Examine the platform package"""
         d = BasicUML('test_output/doc_platform',option='uml', title="Platform Package")
-        d.set_visible_package('platform', restrict=True)
+        d.set_visible_package('platform', extra_classes=[], restrict=True)
         d.set_association_edges(multiline=True)
+        # make the graph a bit more horizontal and less vertical:
+        d.direct_samerank([('platform.storage_pool', 'platform.storage_systems'), ])
         d.generate_pdf()
 
     def test_design(self):
@@ -121,7 +123,6 @@ class TestGraphCases(unittest.TestCase):
             d.set_visible_package('iso', restrict=True, show_base_links=False)
             d.set_association_edges(multiline=True)
             d.generate_pdf()
-
 
     def test_shared(self):
         d = BasicUML('test_output/doc_shared', option='uml', title="Shared Package")
@@ -172,26 +173,41 @@ class TestGraphCases(unittest.TestCase):
         d.set_association_edges(multiline=True)
         d.generate_pdf()
 
-
     def test_simple_perf(self):
         """ Explain the relationship between performande and software as it currently stands. """
         d = BasicUML('test_output/understand_perf', option='uml', title="Performance and Software")
         d.set_visible_classes(['science.model', 'software.software_component','science.realm',
-                               'platform.performance','platform.component_performance',
+                               'platform.performance',
                                'software.composition', 'software.implementation',
                                ], expand_base=True, expand_associated=False)
         d.set_association_edges(multiline=True)
         d.generate_pdf()
 
-
     def test_twoeg(self):
-        """ Produce two UML diagrams for the core paper"""
+        """ Produce twoeg UML diagram for the core paper"""
         d = BasicUML('test_output/twoeg', option='uml', coloured=False)
         d.set_visible_classes(['time.date_time', 'iso.md_cellgeometry_code'],
                               expand_base=True, expand_associated=False)
         d.set_association_edges(multiline=True)
         d.generate_pdf()
 
+
+    def test_quality(self):
+        """ Produce two UML diagrams for quality figure in core paper"""
+        d = BasicUML('test_output/quality_meta', option='uml', coloured=False,)
+                     #title='Metadata Quality (from Shared package)')
+        d.set_visible_classes(['shared.quality_review', 'shared.quality_status'],
+                              expand_base=True, expand_associated=False)
+        d.set_association_edges(multiline=True)
+        d.generate_pdf()
+        d = BasicUML('test_output/quality_science', option='uml', coloured=False,)
+                     #title='Scientific Metadata Quality (from ISO package)')
+        d.set_visible_classes(['iso.quality_report', 'iso.quality_evaluation_result','iso.quality_issue',
+                                'iso.quality_evaluation_output','iso.dq_evaluation_result_type'],
+                              expand_base=False, expand_associated=False)
+        d.direct_samerank([('iso.quality_evaluation_output', 'iso.dq_evaluation_result_type')])
+        d.set_association_edges(multiline=True)
+        d.generate_pdf()
 
 class TestPackageUML(unittest.TestCase):
 
