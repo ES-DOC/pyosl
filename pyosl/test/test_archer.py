@@ -66,7 +66,7 @@ def make_archer():
 
 
 def make_archer2():
-    """ As an example, let's minimally describe ARCHER. In this case with several json documents."""
+    """ As an example, let's minimally describe ARCHER2. In this case with several json documents."""
 
     # establish documents:
     author = Factory.new_document('shared.party')
@@ -86,29 +86,33 @@ def make_archer2():
     normal_nodes = named_build('platform.compute_pool', 'Normal Nodes')
     work = named_build('platform.storage_pool', 'Work Filesystems')
     home = named_build('platform.storage_pool', 'Home Storage')
-    dragonfly = named_build('platform.interconnect', 'Dragonfly')
+    burst = named_build('platform.storage_pool', 'Burst Buffer')
+    slingshot = named_build('platform.interconnect', 'Slingshot Interconnect')
+    nic = named_build('platform.nic','Shasta SS-10')
 
     # and build our description of ARCHER:
-    archer.name = 'Archer'
+    archer.name = 'Archer2'
     archer.description = "UKRI shared national compute service"
     archer.compute_pools = [highmem_nodes, normal_nodes]
     archer.storage_pools = [home, work]
     archer.vendor = cray
-    archer.interconnect = dragonfly
-    archer.model_number = 'XC-30'
+    archer.interconnect = slingshot
     archer.online_documentation = [online('https://archer.ac.uk', 'website'), ]
-    archer.when_available = calendar_period('2013-11-01', '2020-01-16')
+    archer.when_available = calendar_period('2020-06-01','2026-05-30')
+
 
     # flesh out some of the class instances
-    highmem_nodes.compute_cores_per_node = 24
-    highmem_nodes.cpu_type = 'Ivy Bridge'
-    highmem_nodes.memory_per_node = numeric_value(128., 'GB')
-    highmem_nodes.number_of_nodes = 376
-    highmem_nodes.model_number = 'E5-2697 v2'
-    highmem_nodes.clock_speed = numeric_value(2.7, 'GHz')
-    normal_nodes.memory_per_node = numeric_value(64., 'GB')
-    normal_nodes.number_of_nodes = 4544
+    highmem_nodes.compute_cores_per_node = 128
+    highmem_nodes.cpu_type = 'AMD Rome'
+    highmem_nodes.memory_per_node = numeric_value(512, 'GB')
+    highmem_nodes.number_of_nodes = 292
+    highmem_nodes.clock_speed = numeric_value(2.2, 'GHz')
+    highmem_nodes.network_cards_per_node=[nic, nic]
+    normal_nodes.memory_per_node = numeric_value(256, 'GB')
+    normal_nodes.number_of_nodes = 5556
     normal_nodes = osl_fill_from(normal_nodes, highmem_nodes)
+    nic.bandwidth = numeric_value(100, 'Gb')
+    nic.vendor = cray
 
     work.description = 'Primary parallel file storage for data. Not backed up.'
     work.type = 'Lustre'
@@ -119,6 +123,10 @@ def make_archer2():
     home.description = "Storage for code, and important results - backed up"
     home.type = 'NFS'
     home.file_system_sizes = [numeric_value(218., 'TB'), ]
+
+    burst.description = ''
+    burst.type = 'lustre'
+    burst.file_system_sizes = [numeric_value(1.1,'PB'),]
 
     return bundle_instance(archer)
 
@@ -146,7 +154,8 @@ class TestTriples(unittest.TestCase):
         self.a = make_archer()
 
     def test_triples(self):
-        g = Triples(self.a)
+        g = Triples()
+        g.add_instance(self.a)
         print(g)
         for i,j in zip(g.triples[0],
                        ('http://esdoc-org/osl/platform.machine/Archer', 'rdf:type', 'platform.machine')):

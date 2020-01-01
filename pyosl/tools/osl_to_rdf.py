@@ -6,6 +6,7 @@ from pyosl import Property
 import uuid
 from requests.utils import requote_uri
 
+
 NAMESPACE = 'http://esdoc-org/osl'
 
 MAPPING = {
@@ -45,23 +46,36 @@ def _value(entity):
         return entity
 
 
-class Triples:
-    """ Lightweight RDF encoder"""
+class CoreRDF:
+    """ Mixin interface class for core RDF functionality for one graph."""
 
-    def __init__(self, instance, include_metadata=False):
-        self.triples = []
+    def __init__(self, include_metadata=False):
+        """
+        Instantiate an RDF Graph or repository
+        :param instance: An initial pyosl instance to be serialised as RDF.
+        :param include_metadata: Boolean : whether or not to include internal pyosl metadata.
+        """
         self.include_metadata = include_metadata
-        if self.include_metadata:
-            raise NotImplementedError("Code for including document metadata doesnt't exist yet")
-        self.add_instance(instance)
-        
+
+        # a list of tuples of the form target (id, name, relationship)
+        self.external_esdoc_references = []
+
     def add_triple(self, triple):
-        if triple not in self.triples:
-            self.triples.append(triple)
+        """ Add a new triple to the graph or repository"""
+        raise NotImplementedError
 
     def add_instance(self, instance):
-        """ Add a pyosl instance"""
+        """
+        Add a new instance (including all composed attributes as additional triples).
+        Include all document links as doc_reference triples.
+        Return a list of URIs from any document references which provide them.
+        :param instance:
+        :return: references: a list of URIS for esdoc entities which are linked to this instance.
+        """
+
         klass = instance.__class__.__name__
+        if klass == 'shared.doc_reference':
+            self._add_reference(instance)
         name = None
         for key in ('uid', 'id', 'name'):
             val = _getval_if_exists_and_set(instance, key)
@@ -122,12 +136,36 @@ class Triples:
 
         return name
 
+    def _add_reference(self, doc_reference):
+        """
+        Parse a doc_reference instance, and if available, add esdoc reference to internal list of references
+        :param doc_reference:
+        :return:
+        """
+        try:
+            assert doc_reference.__class__.__name__ == "shared.doc_reference"
+        except AssertionError or AttributeError:
+            raise ValueError(f"Argument to _add_reference is not a pyosl doc_reference instance {doc_reference}")
+        if doc_reference.id:
+            self.external_esdoc_references.append((doc_reference.id, doc_reference.name, doc_reference.relationship))
+
+
+class Triples (CoreRDF):
+    """ Lightweight RDF encoder"""
+
+    def __init__(self, include_metadata=False):
+        super().__init__(include_metadata)
+        self.triples = []
+        if self.include_metadata:
+            raise NotImplementedError("Code for including document metadata doesnt't exist yet")
+        
+    def add_triple(self, triple):
+        if triple not in self.triples:
+            self.triples.append(triple)
+
     def __repr__(self):
         """ String representation"""
         return '\n'.join([str(i) for i in self.triples])
-
-
-
 
 
 
