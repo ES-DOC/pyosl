@@ -24,6 +24,13 @@ def named_build(klass, name):
     return k
 
 
+def new_document(klass, name=None, author=None):
+    """ Convenience method for starting new documents"""
+    doc = Factory.new_document(klass, author)
+    doc.name = name
+    doc._osl.id = uuid.uuid4()
+    return doc
+
 def calendar_period(sdate, edate):
     """ Create a time period object, using a normal date of form yyyy-mm-dd format.
     If dd doesn't appear, uses 1st of month. Calendar must be Gregorian!"""
@@ -45,9 +52,11 @@ def calendar_period(sdate, edate):
 
 def osl_fill_from(self, other):
     """ FIll non-present-attributes in self, from other"""
+    #TODO: What about inherited properties?
     for p in self._osl.properties:
         conditional_copy(self, other, p[0])
     return self
+
 
 def online(url, name, **kw):
     """ Convenience class for building a shared online reference"""

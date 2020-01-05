@@ -13,6 +13,7 @@ from .osl_encoder import (osl_encode,
                           bundle_instance)
 
 from .osl_tools import (named_build,
+                        new_document,
                         calendar_period,
                         osl_fill_from,
                         online,
@@ -20,4 +21,4 @@ from .osl_tools import (named_build,
                         conditional_copy,
                         get_reference_for)
 
-from .osl_to_rdf import (Triples, NAMESPACE)
+from .osl_to_rdf import (Triples, Triples2, NAMESPACE)

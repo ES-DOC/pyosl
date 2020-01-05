@@ -5,7 +5,7 @@ from . osl_encoder import SERIAL_VERSION
 from pyosl import Property
 import uuid
 from requests.utils import requote_uri
-
+from rdflib import Graph, URIRef, RDF, BNode, Literal
 
 NAMESPACE = 'http://esdoc-org/osl'
 
@@ -15,15 +15,6 @@ MAPPING = {
     int: 'http://www.w3.org/2001/XMLSchema#integer',
     float: 'http://www.w3.org/2001/XMLSchema#ifloat'
 }
-
-
-def literal(v):
-    """ Annotate builtin literals with datatypes."""
-    key = type(v)
-    if key in MAPPING:
-        return f'{v}^^{MAPPING[key]}'
-    else:
-        raise ValueError(f"Unexpected builtin type {key} ({v})")
 
 
 def _getval_if_exists_and_set(instance, attribute):
@@ -49,19 +40,22 @@ def _value(entity):
 class CoreRDF:
     """ Mixin interface class for core RDF functionality for one graph."""
 
-    def __init__(self, include_metadata=False):
+    def __init__(self):
         """
         Instantiate an RDF Graph or repository
         :param instance: An initial pyosl instance to be serialised as RDF.
-        :param include_metadata: Boolean : whether or not to include internal pyosl metadata.
         """
-        self.include_metadata = include_metadata
 
         # a list of tuples of the form target (id, name, relationship)
         self.external_esdoc_references = []
 
     def add_triple(self, triple):
-        """ Add a new triple to the graph or repository"""
+        """
+        Add a new triple to the graph or repository
+        :param triple: A tuple, the first element of which must be unique within the graph/repository
+        :return:
+        """
+        # Must be implemented by sub-classes
         raise NotImplementedError
 
     def add_instance(self, instance):
@@ -113,14 +107,14 @@ class CoreRDF:
 
                 # ... simple types;
                 elif val is not None:
-                    self.add_triple((name, key, literal(val)))
+                    self.add_triple((name, key, self._literal(val)))
 
             # Encode iterables:
             else:
                 if len(val) > 0:
                     # ... string types;
                     if isinstance(val, str):
-                        self.add_triple((name, key, literal(val)))
+                        self.add_triple((name, key, self._literal(val)))
                     # ... collections;
                     else:
                         # Assume ordered, we can't know ...
@@ -132,9 +126,17 @@ class CoreRDF:
                             if hasattr(v, '_osl'):
                                 self.add_triple((blank_name, predicate, self.add_instance(v)))
                             else:
-                                self.add_triple((blank_name, predicate, literal(v)))
+                                self.add_triple((blank_name, predicate, self._literal(v)))
 
         return name
+
+    def _literal(self, v):
+        """ Annotate builtin literals with datatypes."""
+        key = type(v)
+        if key in MAPPING:
+            return f'{v}^^{MAPPING[key]}'
+        else:
+            raise ValueError(f"Unexpected builtin type {key} ({v})")
 
     def _add_reference(self, doc_reference):
         """
@@ -153,11 +155,9 @@ class CoreRDF:
 class Triples (CoreRDF):
     """ Lightweight RDF encoder"""
 
-    def __init__(self, include_metadata=False):
-        super().__init__(include_metadata)
+    def __init__(self):
+        super().__init__()
         self.triples = []
-        if self.include_metadata:
-            raise NotImplementedError("Code for including document metadata doesnt't exist yet")
         
     def add_triple(self, triple):
         if triple not in self.triples:
@@ -167,6 +167,104 @@ class Triples (CoreRDF):
         """ String representation"""
         return '\n'.join([str(i) for i in self.triples])
 
+
+class Triples2(CoreRDF):
+    """ RDF triples using rdflib for a triple store"""
+    def __init__(self):
+        """ Initialise with a choice of whether or not to include internal osl metadata"""
+        super().__init__()
+        self.g = Graph()
+        self.resource_space = 'https://es-doc.org/resources/'
+        self.type_space = 'https://es-doc.org/types/'
+
+    def add_triple(self, triple):
+        """" Need to encode triple using the proper RDFlib classes"""
+        self.g.add(triple)
+
+    def add_instance(self, instance):
+        """
+        Add a new instance (including all composed attributes as additional triples).
+        Include all document links as doc_reference triples.
+        Return a list of URIs from any document references which provide them.
+        :param instance:
+        """
+        node = self._get_entity(instance)
+        return self.external_esdoc_references
+
+    def _get_entity(self, instance):
+        """
+
+        :return: entity: a suitable object for an RDFlib triple
+        :return: references: a list of URIS for esdoc entities which are linked to this instance.
+        """
+
+        # Setup Node
+        klass = instance.__class__.__name__
+        q_klass = URIRef(self.type_space + klass)
+        # All documents are resources
+        if instance._osl.is_document:
+            for key in ('id', 'uid'):
+                val = _getval_if_exists_and_set(instance._meta, key)
+                if val:
+                    node = URIRef(self.resource_space+val)
+                    self.add_triple((node, RDF.type, q_klass))
+                    break
+            if not val:
+                # A document which has no uid, bad, bad behaviour
+                raise ValueError(f"RDF Encoding problem\n[[{instance}]]\n[[Malformed document has no ID]]")
+        else:
+            if klass == 'shared.doc_reference':
+                self._add_reference(instance)
+            # Literal of some sort
+            node = BNode()
+            self.add_triple((node, RDF.type, q_klass))
+
+        for key, val in instance.__dict__.items():
+            # Escape private/magic properties, except for the osl private metadata which we do want to encode
+            if not _is_encodable_attribute(key):
+                continue
+
+            rdfkey = URIRef(self.type_space + klass + '/' + key)
+            # Process iterables / non-iterables differently.
+            try:
+                iter(val)
+            # Encode non-iterables:
+            except TypeError:
+                v = self._value(val)
+                if self._value(val):
+                    self.add_triple((node, rdfkey, v))
+
+            # Encode iterables:
+            else:
+                if len(val) > 0:
+                    # ... string types;
+                    if isinstance(val, str):
+                        self.add_triple((node, rdfkey, Literal(val)))
+                    # ... collections;
+                    else:
+                        bag = BNode()
+                        self.add_triple((node, rdfkey, bag))
+                        for v in val[0:1]:
+                            self.add_triple((bag, RDF.first, self._value(v)))
+                        for v in val[1:]:
+                            self.add_triple((bag, RDF.next, self._value(v)))
+
+        return node
+
+    def _value(self, entity):
+        """ Return an RDF encode-able value for an instance"""
+        if isinstance(entity, Property):
+            return self._value(entity.value)
+        elif hasattr(entity, '_osl'):
+            return self._get_entity(entity)
+        else:
+            if entity:
+                return Literal(entity)
+            else:
+                return entity
+
+    def __repr__(self):
+        return self.g.serialize(format='turtle')
 
 
 

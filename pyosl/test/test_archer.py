@@ -1,7 +1,8 @@
 import unittest
 from pyosl import Factory
-from pyosl.tools import named_build, calendar_period, osl_fill_from, online, numeric_value, get_reference_for
-from pyosl.tools import osl_encode2json, bundle_instance, Triples
+from pyosl.tools import named_build, calendar_period, osl_fill_from, online, numeric_value, get_reference_for, \
+    new_document
+from pyosl.tools import osl_encode2json, bundle_instance, Triples, Triples2
 from pyosl.uml import TriplesDelux
 
 
@@ -10,17 +11,16 @@ def make_archer():
 
     # establish documents:
     author = Factory.new_document('shared.party')
-    archer = Factory.new_document('platform.machine', author)
-    cray = Factory.new_document('shared.party', author)
-    epcc = Factory.new_document('shared.party', author)
+    archer = new_document('platform.machine', 'Archer', author)
+    cray = new_document('shared.party', 'Cray', author)
+    epcc = new_document('shared.party', 'Edinburgh Parallel Computer Centre', author)
 
     # flesh out the party attributes
     author.name = 'Bryan Lawrence'
     author.orcid_id = '0000-0001-9262-7860'
     author.url = online('http://wwww.bnlawrence.net','personal website')
-    cray.name = "Cray"
+
     cray.url = online('https://cray.com','Website')
-    epcc.name = 'Edinburgh Parallel Computer Centre'
     epcc.url = online('https://epcc.ed.ac.uk', 'Website')
 
     # now build some class instances
@@ -31,7 +31,7 @@ def make_archer():
     dragonfly = named_build('platform.interconnect','Dragonfly')
 
     # and build our description of ARCHER:
-    archer.name = 'Archer'
+
     archer.description = "UKRI shared national compute service"
     archer.compute_pools = [highmem_nodes, normal_nodes]
     archer.storage_pools = [home, work]
@@ -168,6 +168,12 @@ class TestTriples(unittest.TestCase):
         g = TriplesDelux(self.a)
         g.make_graph(dot_required=True)
         g.make_pdf()
+
+    def test_rdflib(self):
+        """ Test serialisation using rdflib"""
+        ts = Triples2()
+        ts.add_instance(self.a)
+        print(ts.g.serialize(format='turtle'))
 
 
 if __name__ == "__main__":
