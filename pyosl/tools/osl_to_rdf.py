@@ -46,8 +46,36 @@ class CoreRDF:
         :param instance: An initial pyosl instance to be serialised as RDF.
         """
 
-        # a list of tuples of the form target (id, name, relationship)
-        self.external_esdoc_references = []
+        # External entities (documents via doc_reference, and online resources)
+        self.online_resources = {}  # keyed by linkage
+        self.documents_referenced = {}  # keyed by id
+
+    @property
+    def external_esdoc_references(self):
+        """A list of tuples of the form target (id, name, relationship)"""
+        return [(v.id, v.name, v.relationship) for v in self.documents_referenced.keys()]
+
+    @property
+    def external_resources(self):
+        """ A list of online resource linkages"""
+        return self.online_resources.keys()
+
+    def _collect_external(self, entity):
+        """
+        Parse an entity and if it is one of "shared.doc_reference" or "shared.online_resource", check if unique,
+        and collect if it is and return True, if not, return False.
+        """
+        klass = entity.__class__.__name__
+        if klass in  ["shared.doc_reference", "shared.online_resource"]:
+            key_name = {'shared.doc_reference':'id', 'shared.online_resource':'linkage'}
+            repo = {'shared.online_resource':self.online_resources,
+                          'shared.doc_reference':self.documents_referenced}[klass]
+            key = getattr(entity, key_name[klass])
+            if key in repo:
+                return False
+            else:
+                repo[key] = entity
+        return True
 
     def add_triple(self, triple):
         """
@@ -69,7 +97,7 @@ class CoreRDF:
 
         klass = instance.__class__.__name__
         if klass == 'shared.doc_reference':
-            self._add_reference(instance)
+            self._collect_external(instance)
         name = None
         for key in ('uid', 'id', 'name'):
             val = _getval_if_exists_and_set(instance, key)
@@ -138,18 +166,7 @@ class CoreRDF:
         else:
             raise ValueError(f"Unexpected builtin type {key} ({v})")
 
-    def _add_reference(self, doc_reference):
-        """
-        Parse a doc_reference instance, and if available, add esdoc reference to internal list of references
-        :param doc_reference:
-        :return:
-        """
-        try:
-            assert doc_reference.__class__.__name__ == "shared.doc_reference"
-        except AssertionError or AttributeError:
-            raise ValueError(f"Argument to _add_reference is not a pyosl doc_reference instance {doc_reference}")
-        if doc_reference.id:
-            self.external_esdoc_references.append((doc_reference.id, doc_reference.name, doc_reference.relationship))
+
 
 
 class Triples (CoreRDF):
@@ -171,11 +188,24 @@ class Triples (CoreRDF):
 class Triples2(CoreRDF):
     """ RDF triples using rdflib for a triple store"""
     def __init__(self):
-        """ Initialise with a choice of whether or not to include internal osl metadata"""
+        """ Initialise graph and list of internal linkages"""
         super().__init__()
         self.g = Graph()
         self.resource_space = 'https://es-doc.org/resources/'
         self.type_space = 'https://es-doc.org/types/'
+        self.objects = {}
+
+    def _check_add_external(self, entity):
+        """ Add an external entity if necessary"""
+        klass = entity.__class__.__name__
+        assert klass in ["shared.doc_reference", "shared.online_resource"]
+        key_name = {'shared.doc_reference': 'id', 'shared.online_resource': 'linkage'}
+        key = getattr(entity, key_name[klass])
+        if key in self.objects:
+            return True, self.objects[key][1]
+        else:
+            self.objects[key] = [entity, URIRef(key)]
+            return False, self.objects[key][1]
 
     def add_triple(self, triple):
         """" Need to encode triple using the proper RDFlib classes"""
@@ -198,6 +228,12 @@ class Triples2(CoreRDF):
         :return: references: a list of URIS for esdoc entities which are linked to this instance.
         """
 
+        # Four interesting types of instances to deal with:
+        # 1: documents
+        # 2: doc_references - links to documents (singular, so don't repeat the document description)
+        # 3: references to real resources that aren't documents: online_resources
+        # 4: everything else
+
         # Setup Node
         klass = instance.__class__.__name__
         q_klass = URIRef(self.type_space + klass)
@@ -206,15 +242,25 @@ class Triples2(CoreRDF):
             for key in ('id', 'uid'):
                 val = _getval_if_exists_and_set(instance._meta, key)
                 if val:
-                    node = URIRef(self.resource_space+val)
+                    # have we seen it before?
+                    object_key = self.resource_space+val
+                    if object_key in self.objects:
+                        return self.objects[object_key][1]
+                    else:
+                        node = URIRef(object_key)
+                        self.objects[object_key] = [instance, node]
                     self.add_triple((node, RDF.type, q_klass))
                     break
             if not val:
                 # A document which has no uid, bad, bad behaviour
                 raise ValueError(f"RDF Encoding problem\n[[{instance}]]\n[[Malformed document has no ID]]")
+        elif klass in ['shared.doc_reference', 'shared.online_resource']:
+            already_seen, node = self._check_add_external(instance)
+            if already_seen:
+                return node
+            else:
+                self.add_triple((node, RDF.type, q_klass))
         else:
-            if klass == 'shared.doc_reference':
-                self._add_reference(instance)
             # Literal of some sort
             node = BNode()
             self.add_triple((node, RDF.type, q_klass))
@@ -225,29 +271,28 @@ class Triples2(CoreRDF):
                 continue
 
             rdfkey = URIRef(self.type_space + klass + '/' + key)
-            # Process iterables / non-iterables differently.
-            try:
-                iter(val)
-            # Encode non-iterables:
-            except TypeError:
-                v = self._value(val)
-                if self._value(val):
-                    self.add_triple((node, rdfkey, v))
 
-            # Encode iterables:
+            # Process iterables / non-iterables differently.
+            # Unlike generic serialisation, we only have lists as iterables, let's use that knowledge
+
+            if isinstance(val, Property):
+                val = val.value
+
+            if not isinstance(val, list): # captures PropertyList too
+                entity = self._value(val)
+                if entity:
+                    self.add_triple((node, rdfkey, entity))
+
+            # Encode list items
             else:
                 if len(val) > 0:
-                    # ... string types;
-                    if isinstance(val, str):
-                        self.add_triple((node, rdfkey, Literal(val)))
-                    # ... collections;
-                    else:
-                        bag = BNode()
-                        self.add_triple((node, rdfkey, bag))
-                        for v in val[0:1]:
-                            self.add_triple((bag, RDF.first, self._value(v)))
-                        for v in val[1:]:
-                            self.add_triple((bag, RDF.next, self._value(v)))
+                    print(rdfkey)
+                    bag = BNode()
+                    self.add_triple((node, rdfkey, bag))
+                    for v in val[0:1]:
+                        self.add_triple((bag, RDF.first, self._value(v)))
+                    for v in val[1:]:
+                        self.add_triple((bag, RDF.rest, self._value(v)))
 
         return node
 

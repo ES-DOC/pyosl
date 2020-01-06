@@ -104,14 +104,14 @@ def make_archer2():
     # flesh out some of the class instances
     highmem_nodes.compute_cores_per_node = 128
     highmem_nodes.cpu_type = 'AMD Rome'
-    highmem_nodes.memory_per_node = numeric_value(512, 'GB')
+    highmem_nodes.memory_per_node = numeric_value(512., 'GB')
     highmem_nodes.number_of_nodes = 292
     highmem_nodes.clock_speed = numeric_value(2.2, 'GHz')
     highmem_nodes.network_cards_per_node=[nic, nic]
-    normal_nodes.memory_per_node = numeric_value(256, 'GB')
+    normal_nodes.memory_per_node = numeric_value(256., 'GB')
     normal_nodes.number_of_nodes = 5556
     normal_nodes = osl_fill_from(normal_nodes, highmem_nodes)
-    nic.bandwidth = numeric_value(100, 'Gb')
+    nic.bandwidth = numeric_value(100., 'Gb')
     nic.vendor = cray
 
     work.description = 'Primary parallel file storage for data. Not backed up.'
@@ -126,7 +126,7 @@ def make_archer2():
 
     burst.description = ''
     burst.type = 'lustre'
-    burst.file_system_sizes = [numeric_value(1.1,'PB'),]
+    burst.file_system_sizes = [numeric_value(1.1, 'PB'), ]
 
     return bundle_instance(archer)
 
@@ -173,8 +173,7 @@ class TestTriples(unittest.TestCase):
         """ Test serialisation using rdflib"""
         ts = Triples2()
         ts.add_instance(self.a)
-        print(ts.g.serialize(format='turtle'))
-
+        ts.g.serialize(destination='turtle.txt', format='turtle')
 
 if __name__ == "__main__":
     unittest.main()
