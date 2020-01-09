@@ -67,18 +67,28 @@ class OntoMeta:
             setattr(self, k, v)
 
 
+def fixlist(v):
+    """ Make sure all lists have string valued members for printing"""
+    if isinstance(v, list):
+        return [str(vv) for vv in v]
+    else:
+        return v
+
+
 class OntoBase:
 
     """ A base class for defining ontology classes """
 
     def __str__(self):
         if hasattr(self._osl, 'pstr'):
-            values = [getattr(self, s) for s in self._osl.pstr[1]]
+            values = [fixlist(getattr(self, s)) for s in self._osl.pstr[1]]
             return self._osl.pstr[0].format(*values)
         elif hasattr(self, 'name'):
             if self.name:
-                return '{} ({})'.format(self.name, self._osl.type_key)
-            return 'Instance of {}'.format(self._osl.type_key)
+                return f'{self.name} ({self.__class__.__name__})'
+            return f'Instance of {self.__class__.__name__}'
+        else:
+            return f'Instance of {self.__class.__name__}'
 
     def __eq__(self, other):
         if type(self) != type(other):

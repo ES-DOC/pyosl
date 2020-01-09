@@ -1,6 +1,7 @@
 import unittest
 
 from pyosl import Factory
+from pyosl.tools import named_build, new_document, numeric_value
 
 
 class TestValidity(unittest.TestCase):
@@ -51,6 +52,27 @@ class TestValidity(unittest.TestCase):
                     if v not in properties:
                         raise ValueError(f'pstr needs variable [{v}] not found in properties for [{k}]')
 
+    def test_str(self):
+        """ Test it is possible to return a string value for anything"""
+        klasses = Factory.ontology.klasses
+        for k in klasses:
+            x = Factory.build(k)
+            try:
+                y = str(x)
+            except:
+                raise ValueError(f'Unable to construct a string for {k}')
+
+    def test_specific_strings(self):
+        """ Test some specific string representations"""
+        a = Factory.build('shared.party')
+        archer = new_document('platform.machine', 'Archer', a)
+        self.assertEqual(str(archer), 'Archer')
+
+        n = named_build('platform.storage_pool', 'Storage')
+        fs1 = numeric_value(2., 'PB')
+        fs2 = numeric_value(3., 'PB')
+        n.file_system_sizes = [fs1, fs2]
+        self.assertEqual(str(n), "Storage ['2.0PB', '3.0PB']")
 
 
 if __name__ == "__main__":
