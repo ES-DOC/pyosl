@@ -1,6 +1,7 @@
 import json
 
 from . osl_encoder import _is_encodable_attribute
+from . osl_tools import get_reference_for
 from . osl_encoder import SERIAL_VERSION
 from pyosl import Property
 import uuid
@@ -8,6 +9,7 @@ from requests.utils import requote_uri
 from rdflib import Graph, URIRef, RDF, BNode, Literal
 
 NAMESPACE = 'http://esdoc-org/osl'
+DEBUG = True
 
 MAPPING = {
     str: 'http://www.w3.org/2001/XMLSchema#string',
@@ -187,13 +189,21 @@ class Triples (CoreRDF):
 
 class Triples2(CoreRDF):
     """ RDF triples using rdflib for a triple store"""
-    def __init__(self):
-        """ Initialise graph and list of internal linkages"""
+    def __init__(self, collect_semantic_triples=True, skip_meta=True):
+        """ Initialise graph and list of internal linkages,
+        optionally flag desire to collect semantic triples as well.
+        (semantic triples? for pyosl plotting)"""
         super().__init__()
         self.g = Graph()
         self.resource_space = 'https://es-doc.org/resources/'
         self.type_space = 'https://es-doc.org/types/'
         self.objects = {}
+        self.semantic_nodes = {'shared.doc_reference': [],
+                               'shared.online_resource': [],
+                               'other_osl': []}
+        self.semantic_triples = []
+        self.go_semantic = collect_semantic_triples
+        self.skip_meta=skip_meta
 
     def _check_add_external(self, entity):
         """ Add an external entity if necessary"""
@@ -205,11 +215,19 @@ class Triples2(CoreRDF):
             return True, self.objects[key][1]
         else:
             self.objects[key] = [entity, URIRef(key)]
+            if self.go_semantic:
+                self.semantic_nodes[klass].append(str(entity))
             return False, self.objects[key][1]
 
     def add_triple(self, triple):
         """" Need to encode triple using the proper RDFlib classes"""
         self.g.add(triple)
+
+    def add_semantic(self,triple):
+        """ Add a semantically meaningful triple """
+        s, p, o = triple
+        if hasattr(o, '_osl'):
+            self.semantic_triples.append((str(s), p, str(o)))
 
     def add_instance(self, instance):
         """
@@ -228,15 +246,17 @@ class Triples2(CoreRDF):
         :return: references: a list of URIS for esdoc entities which are linked to this instance.
         """
 
-        # Four interesting types of instances to deal with:
+        # Five interesting types of instances to deal with:
         # 1: documents
         # 2: doc_references - links to documents (singular, so don't repeat the document description)
         # 3: references to real resources that aren't documents: online_resources
-        # 4: everything else
+        # 4: other osl types
+        # 5: everything else
 
         # Setup Node
         klass = instance.__class__.__name__
         q_klass = URIRef(self.type_space + klass)
+        noderef = None
         # All documents are resources
         if instance._osl.is_document:
             for key in ('id', 'uid'):
@@ -249,6 +269,9 @@ class Triples2(CoreRDF):
                     else:
                         node = URIRef(object_key)
                         self.objects[object_key] = [instance, node]
+                        if self.go_semantic:
+                            noderef = get_reference_for(instance)
+                            self.semantic_nodes['shared.doc_reference'].append(str(noderef))
                     self.add_triple((node, RDF.type, q_klass))
                     break
             if not val:
@@ -260,14 +283,15 @@ class Triples2(CoreRDF):
                 return node
             else:
                 self.add_triple((node, RDF.type, q_klass))
+                noderef = instance
         else:
-            # Literal of some sort
+            # pyosl literal of some sort
             node = BNode()
             self.add_triple((node, RDF.type, q_klass))
 
         for key, val in instance.__dict__.items():
             # Escape private/magic properties, except for the osl private metadata which we do want to encode
-            if not _is_encodable_attribute(key):
+            if not _is_encodable_attribute(key) or (self.skip_meta and key == '_meta'):
                 continue
 
             rdfkey = URIRef(self.type_space + klass + '/' + key)
@@ -282,17 +306,23 @@ class Triples2(CoreRDF):
                 entity = self._value(val)
                 if entity:
                     self.add_triple((node, rdfkey, entity))
+                    if noderef and self.go_semantic:
+                        self.add_semantic((instance, key, val))
 
             # Encode list items
             else:
                 if len(val) > 0:
-                    print(rdfkey)
+                    if DEBUG:
+                        print('List Item ',rdfkey)
                     bag = BNode()
                     self.add_triple((node, rdfkey, bag))
                     for v in val[0:1]:
                         self.add_triple((bag, RDF.first, self._value(v)))
                     for v in val[1:]:
                         self.add_triple((bag, RDF.rest, self._value(v)))
+                    if noderef and self.go_semantic:
+                        for v in val:
+                            self.add_semantic((instance, key, v))
 
         return node
 
@@ -301,7 +331,10 @@ class Triples2(CoreRDF):
         if isinstance(entity, Property):
             return self._value(entity.value)
         elif hasattr(entity, '_osl'):
-            return self._get_entity(entity)
+            if self.skip_meta and entity.__class__.__name__=='_meta':
+                return entity
+            else:
+                return self._get_entity(entity)
         else:
             if entity:
                 return Literal(entity)
