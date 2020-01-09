@@ -31,6 +31,7 @@ def new_document(klass, name=None, author=None):
     doc._osl.id = uuid.uuid4()
     return doc
 
+
 def calendar_period(sdate, edate):
     """ Create a time period object, using a normal date of form yyyy-mm-dd format.
     If dd doesn't appear, uses 1st of month. Calendar must be Gregorian!"""
@@ -42,11 +43,10 @@ def calendar_period(sdate, edate):
     d1 = date(*s2d(sdate))
     d2 = date(*s2d(edate))
     td = d2 - d1
-    p.time_unit = 'days'
-    #FIXME: Why is this a string?
-    p.length = str(td.days)
+    p.units = 'days'
+    p.length = float(td.days)
     p.date = d
-    p.date_type = 'date is start'
+    p.date_type = 'from'
     return p
 
 
@@ -54,7 +54,7 @@ def osl_fill_from(self, other):
     """ FIll non-present-attributes in self, from other"""
     #TODO: What about inherited properties?
     for p in self._osl.properties:
-        conditional_copy(self, other, p[0])
+        conditional_copy(other, self, p[0])
     return self
 
 
@@ -78,17 +78,22 @@ def numeric_value(number, units):
 
 def conditional_copy(self, other, key, altkey=None):
     """If [[self]] has attribute [[key]] and if
-    the value of that attribute is not None, assign
-    it to [[other]], using [[altkey]] if present
-    otherwise [[key]] for the attribute name"""
-    if hasattr(self, key):
-        possible = getattr(self,key)
-        if possible:
-            if altkey:
-                setattr(other, altkey, deepcopy(possible))
-            else:
-                setattr(other, key, deepcopy(possible))
+    the value of that attribute is not None, AND,
+    the value of that attribute in [[other]] is None,
+    assign that value to that attribute in [[other]].
+    If [[altkey]] is not None, use that value for
+    the key we look for in [[other]].
 
+    """
+    if hasattr(self, key):
+        possible = getattr(self, key)
+        if possible:
+            usekey = {True: altkey, False: key}[altkey is not None]
+            if hasattr(other, usekey):
+                exists = getattr(other, usekey)
+                if exists:
+                    return
+            setattr(other, usekey, deepcopy(possible))
 
 def get_reference_for(document):
     """ Returns a doc_reference instance for a document"""
@@ -105,5 +110,4 @@ def get_reference_for(document):
     for inkey, outkey in [('type_key','type'),]:
         setattr(k, outkey, getattr(document._osl,inkey))
     return k
-
 
