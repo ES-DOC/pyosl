@@ -108,7 +108,6 @@ def make_archer2():
     archer.online_documentation = [online('https://archer.ac.uk', 'website'), ]
     archer.when_available = calendar_period('2020-06-01','2026-05-30')
 
-
     # flesh out some of the class instances
     highmem_nodes.compute_cores_per_node = 128
     highmem_nodes.cpu_type = 'AMD Rome'
@@ -245,19 +244,20 @@ def shells_with_adjacent_layout(G, root):
 
 
 class Viewer:
-    """ Provides multiple ways of plotting a pyosl instance"""
+    """ Provides at least one way of plotting a pyosl instance"""
     def __init__(self, instance):
         self.ts = Triples2()
         self.ts.add_instance(instance)
         self.clean_triples = [(self._clean(i), self._cleanp(j), self._clean(k))
                          for i, j, k in self.ts.semantic_triples]
         self.docs = [self._clean(n) for n in self.ts.semantic_nodes['shared.doc_reference']]
+        self.urls = [self._clean(n) for n in self.ts.semantic_nodes['shared.online_resource']]
 
         # removing duplicates as we go
         subjects = list(dict.fromkeys([a for a,b,c in self.clean_triples]))
         objects = list(dict.fromkeys([c for a,b,c in self.clean_triples]))
         nodes = list(dict.fromkeys(subjects+objects))
-        self.others = [x for x in nodes if str(x) not in self.docs]
+        self.others = [x for x in nodes if str(x) not in self.docs+self.urls]
 
     def _clean(self, s):
         """ Used to clean up node names """
@@ -269,22 +269,30 @@ class Viewer:
         """ Used to clean predicates """
         return s.replace('_', '\n')
 
-    def view_nx(self):
+    def view_nx(self, layout='adjacent'):
         """ Use nx, experimental code """
         G = nx.MultiDiGraph()
         G.add_edges_from([(i, k) for i, j, k in self.clean_triples])
 
-        pos = shells_with_adjacent_layout(G, 'Archer')
+        if layout == 'adjacent':
+            pos = shells_with_adjacent_layout(G, 'Archer')
+        elif layout == 'kamada':
+            pos = nx.kamada_kawai_layout(G, scale=2)
+        else:
+            raise ValueError(f'Unknown layout option {layout}')
 
         otherlabels = {n: n for n in self.others}
         doclabels = {n: n for n in self.docs}
+        urllabels = {n: n for n in self.urls}
 
-        fig, ax = plt.subplots(figsize=(10, 10))
-        ax.set_xlim((-5, 5))
-        ax.set_ylim((-5, 5))
+        fig, ax = plt.subplots(figsize=(12, 12))
+        ax.set_xlim((-6, 6))
+        ax.set_ylim((-6, 6))
 
-        nx.draw_networkx_nodes(G, pos, self.others, node_size=5800, node_color='r')
+        nx.draw_networkx_nodes(G, pos, self.others, node_size=5800, node_color='lightcoral')
         nx.draw_networkx_labels(G, pos, otherlabels, font_size=10)
+        nx.draw_networkx_nodes(G, pos, self.urls, node_size=5800, node_color='gainsboro')
+        nx.draw_networkx_labels(G, pos, urllabels, font_size=10)
         nx.draw_networkx_nodes(G, pos, self.docs, node_size=5800, node_color='lightblue')
         nx.draw_networkx_labels(G, pos, doclabels, font_size=12)
         nx.draw_networkx_edges(G, pos)
@@ -293,138 +301,7 @@ class Viewer:
 
         plt.axis('off')
         plt.axis('square')
-        plt.show()
-
-    def view_direct(self, root, scale=1.0):
-        """ Plot directly using matplotlib and concentric circles for a root document element """
-
-        assert root in self.docs
-
-        class Slot:
-            def __init__(self, a, x, y):
-                self.a, self.x, self. y = a, x, y
-                self.used = False
-
-        class Slots:
-            """ Set up the list of possible places for a node to be """
-            def __init__(self, rank_sizes, radius=1.5, scale=1.0):
-                """ Initialise with a list of rank sizes, which we assume we will have found via
-                graph analysis. """
-                self.radius, self.scale = radius, scale
-                self.slots = [ [(0, [Slot(0, 0.0, 0.0),]),]]
-                for i, size in enumerate(rank_sizes[1:]):
-                    self.slots.append(self.get_slots(i+1, size))
-                self.nodes = {}
-                self.rank_delta = [0,]
-                for rnk in range(len(rank_sizes))[1:]:
-                    self.rank_delta.append(self.slots[rnk][1].a - self.slots[rnk][0].a)
-
-            def get_slots(self, index, n):
-                """ Get [[n]] slots for [[index]] shell"""
-
-                def getxy(i, n, radius, offset=0):
-                    """ Get the ith slot of n at distance radius from origin starting from offset radians """
-                    angle = offset + i * 2 * math.pi / n
-                    x = math.sin(angle) * radius
-                    y = math.cos(angle) * radius
-                    return Slot(angle, x, y)
-
-                r = self.radius*scale*index
-                return [getxy(i, n, r) for i in range(n)]
-
-            def add_node(self, node, rank, inner_node=None):
-                """ Place node in unused slot in rank,
-                if inner_node present, attempt to place near in angle terms to inner_node"""
-                if inner_node:
-                    if rank < 2:
-                        raise ValueError("Cannot use inner_node option for ranks less than 2")
-                    try:
-                        first_guess = self.nodes[inner_node].a
-                    except KeyError:
-                        raise ValueError(f'Attempt to use inner_node ({inner_node}) not seen before')
-                    ip = round(first_guess/self.rank_delta[rank])
-                    for s in self.slots[rank][ip:]:
-                        if not s.used:
-                            s.used = True
-                            self.nodes[node] = s
-                            return
-                    for s in reversed(self.slots[rank][0:ip]):
-                        if not s.used:
-                            self.nodes[node] = s
-                            return
-                else:
-                    for s in self.slots[rank]:
-                        if not s.used:
-                            s.used = True
-                            self.nodes[node] = s
-                            return
-                raise ValueError(f'Unable to insert f{node} into rank {rank}')
-
-        G = nx.MultiDiGraph()
-        G.add_edges_from([(i, k) for i, j, k in self.clean_triples])
-
-        ranks = [[root], list(G.neighbors(root)),]
-        collected = ranks[0]+ranks[1]
-        ranks.append([])
-        current = 2
-        while len(collected) < len(G.nodes()):
-            for s in ranks[current-1]:
-                nodes = G.neighbors(s)
-                for n in nodes:
-                    if n not in collected:
-                        ranks[current].append(n)
-                        collected.append(n)
-            current += 1
-
-        # networkx shell doesn't quite do what we want
-        #pos = nx.shell_layout(G, ranks)
-        #nx.draw(G, pos)
-
-        rank_sizes = [len(rank) for rank in ranks]
-        if len(rank_sizes) > 4:
-            nn = len(G.nodes())
-            raise ValueError(f'This code not suitable for {nn} nodes')
-
-        possible_sizes = [1, 8, 24, 48]
-        placement_sizes = [max(n,p) for n,p in zip(rank_sizes, possible_sizes)]
-
-        allslots = Slots(placement_sizes)
-        size = 6000
-
-        # center and first rank are special cases, insofar as adjacency in x/y doesn't matter
-        fig, ax = plt.subplots(figsize=(10,10))
-        ax.set_xlim((-5,5))
-        ax.set_ylim((-5,5))
-        ax.scatter([0.,],[0.], size)
-        annokey = {'horizontalalignment': 'center',
-                    'verticalalignment': 'center',
-                    'fontsize': 18}
-        ax.annotate(root, xy=(0,0), **annokey)
-
-        # now allocate and plot nodes rank by rank
-        annokey['fontsize'] = 12
-        for i in range(1, len(ranks)):
-            if i > 1:
-                # do it as adjacencies from inner rank
-                for n in ranks[i-1]:
-                    edges = G.edges(n)
-                    for s,o in edges:
-                        print('edge',s, o)
-                        if o not in allslots.nodes:
-                            allslots.add_node(o, i, inner_node=n)
-            else:
-                for node in ranks[i]:
-                    allslots.add_node(node, i)
-            x = [s.x for s in [allslots.nodes[n] for n in ranks[i]]]
-            y = [s.y for s in [allslots.nodes[n] for n in ranks[i]]]
-            ax.scatter(x, y, size)
-            for n in ranks[i]:
-                s = allslots.nodes[n]
-                ax.annotate(n, (s.x, s.y), **annokey)
-
-        plt.axis('square')
-        plt.axis('off')
-        plt.show()
+        plt.savefig('archer.pdf')
 
 
 class MakeArcher(unittest.TestCase):
@@ -471,63 +348,10 @@ class TestTriples(unittest.TestCase):
         ts.add_instance(self.a)
         ts.g.serialize(destination='turtle.txt', format='turtle')
 
-    def test_drawing(self):
-        """ This is a somewhat concocted exemplar drawing"""
-        def get_edge(s, p, o):
-            pp = p.split('/')[-1]
-            return {'label': pp}
-
-        def get_node(n):
-            r = n.find('resources')
-            t = n.find('types')
-            pp = n.split('/')[-1]
-            if r != -1:
-                return 'doc-'+pp
-            elif t !=-1:
-                return 'typ-'+pp
-            elif len(n) == 33:
-                return 'bla-'+pp
-            else:
-                return pp
-
-        ts = Triples2()
-        ts.add_instance(self.a)
-
-        G = rdflib_to_networkx_multidigraph(ts.g,
-                                            edge_attrs=get_edge,
-                                            transform_s=get_node,
-                                            transform_o=get_node)
-        pos = nx.kamada_kawai_layout(G, scale=3)
-
-
-        # draw all document nodes
-
-        # edge_labels = nx.get_edge_attributes(G, 'r')
-        # print(edge_labels)
-        # nx.draw_networkx_edge_labels(G, pos, labels=edge_labels)
-        #nx.draw(G, with_labels=False)
-
-        # find documents and types
-        # node labels were annotated in the transform so they were findable
-
-        docs = [n for n in G.nodes() if n.find('doc') == 0]
-        types = [n for n in G.nodes() if n.find('typ') == 0]
-        blanks = [n for n in G.nodes() if n.find('bla') == 0]
-        attrs = [n for n in G.nodes()
-                 if n.find('bla') !=0 and n.find('doc') != 0 and n.find('typ') != 0]
-
-        nx.draw_networkx_nodes(G, pos, attrs, node_color='b', with_labels=False)
-        nx.draw_networkx_nodes(G, pos, blanks, node_color='k', node_size=50, with_labels=False)
-        nx.draw_networkx_nodes(G, pos, types, node_color='g', with_labels=False)
-        nx.draw_networkx_nodes(G, pos, docs, with_labels=True, node_shape='s')
-        nx.draw_networkx_edges(G, pos)
-
-        plt.show()
-
     def test_semantic_triples(self):
         viewer = Viewer(self.a)
         viewer.view_nx()
-        viewer.view_direct('Archer')
+        #viewer.view_nx(layout='kamada')
 
 
 

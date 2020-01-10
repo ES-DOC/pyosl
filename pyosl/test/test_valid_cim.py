@@ -71,8 +71,10 @@ class TestValidity(unittest.TestCase):
         n = named_build('platform.storage_pool', 'Storage')
         fs1 = numeric_value(2., 'PB')
         fs2 = numeric_value(3., 'PB')
+
+        self.assertEqual(str(fs1), '2.0PB')
         n.file_system_sizes = [fs1, fs2]
-        self.assertEqual(str(n), "Storage ['2.0PB', '3.0PB']")
+        self.assertEqual(str(n), "Storage [2.0PB, 3.0PB]")
 
 
 if __name__ == "__main__":

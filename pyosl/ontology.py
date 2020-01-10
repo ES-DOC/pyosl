@@ -70,7 +70,8 @@ class OntoMeta:
 def fixlist(v):
     """ Make sure all lists have string valued members for printing"""
     if isinstance(v, list):
-        return [str(vv) for vv in v]
+        s = ", ".join([str(vv) for vv in v])
+        return f'[{s}]'
     else:
         return v
 
