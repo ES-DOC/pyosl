@@ -8,9 +8,10 @@ class TriplesDelux(Triples):
     """ A class to do more than just create and list PYOSL triples """
     # Sits in uml so that the wider dependencies can be avoided if the functionality is not needed.
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, instance):
         """ Initialise with superclass (Triples) arguments"""
-        super().__init__(*args, **kwargs)
+        super().__init__()
+        self.add_instance(instance)
         self.initial_graph_properties = {'rankdir':'LR'}
 
     def __getnode(self, n, relationship=None):
