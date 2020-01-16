@@ -169,8 +169,6 @@ class CoreRDF:
             raise ValueError(f"Unexpected builtin type {key} ({v})")
 
 
-
-
 class Triples (CoreRDF):
     """ Lightweight RDF encoder"""
 
