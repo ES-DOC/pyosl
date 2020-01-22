@@ -6,6 +6,10 @@ from pyosl.uml import BasicUML
 from pyosl.uml import PackageUML
 from pyosl.uml import UmlBase
 
+from . uml4_packages import uml4_activity, uml4_cmip, uml4_data, uml4_design, \
+    uml4_drs, uml4_iso, uml4_platform, uml4_science, uml4_shared, uml4_software, \
+    uml4_time
+
 
 class TestGraphCases(unittest.TestCase):
 
@@ -71,71 +75,39 @@ class TestGraphCases(unittest.TestCase):
         d.generate_pdf()
 
     def test_software(self):
-        """ Examine the software package"""
-        d = BasicUML('test_output/doc_software', option='uml', title="Software Package")
-        d.set_visible_package('software', restrict=True)
-        d.set_association_edges(multiline=True)
-        d.generate_pdf()
+        uml4_software()
+
+    def test_drs(self):
+        uml4_drs()
 
     def test_science(self):
-        """ Examine the science package"""
-        d = BasicUML('test_output/doc_science', option='uml', title="Science Package")
-        d.set_visible_package('science', restrict=True)
-        d.set_association_edges(multiline=True)
-        d.generate_pdf()
+        uml4_science()
 
     def test_platform(self):
-        """ Examine the platform package"""
-        d = BasicUML('test_output/doc_platform',option='uml', title="Platform Package")
-        d.set_visible_package('platform', extra_classes=[], restrict=True)
-        d.set_association_edges(multiline=True)
-        # make the graph a bit more horizontal and less vertical:
-        d.direct_samerank([('platform.storage_pool', 'platform.storage_systems'), ])
-        d.generate_pdf()
+        uml4_platform()
 
     def test_design(self):
-        """ Examine the design package"""
-        d = BasicUML('test_output/doc_design', option='uml', title="Design Package", )
-        d.set_visible_package('designing', restrict=True, show_base_links=False)
-        d.set_association_edges(multiline=True)
-        d.fix_layout(3, ['designing.numerical_requirement_scope',])
-        d.generate_pdf()
+        uml4_design()
 
     def test_activity(self):
-        d = BasicUML('test_output/doc_activity', option='uml', title="Activity Package", rankdir='LR')
-        extras = {0:[],1:['iso.process_step',]}[self.v2p1]
-        d.set_visible_package('activity', extra_classes=extras,restrict=True, show_base_links=False)
-        d.set_association_edges(multiline=True)
-        d.direct_samerank([('activity.conformance', 'activity.conformance_type'),
-                           ('activity.child_simulation','activity.axis_member','activity.ensemble_axis'),
-                           ('activity.ensemble','activity.simulation')])
+        uml4_activity(self.v2p1)
 
     def test_data(self):
-        d = BasicUML('test_output/doc_data', option='uml', title="Data Package")
-        extras = {0: [], 1: ['iso.lineage', ]}[self.v2p1]
-        d.set_visible_package('data', extra_classes=extras, restrict=True, show_base_links=False)
-        d.set_association_edges(multiline=True)
-        d.generate_pdf()
+        uml4_data(self.v2p1)
 
     def test_iso(self):
         if self.v2p1:
-            d = BasicUML('test_output/doc_iso', option='uml', title="ISO Package")
-            d.set_visible_package('iso', restrict=True, show_base_links=False)
-            d.set_association_edges(multiline=True)
-            d.generate_pdf()
+            uml4_iso()
 
     def test_shared(self):
-        d = BasicUML('test_output/doc_shared', option='uml', title="Shared Package")
-        d.set_visible_package('shared', restrict=True, show_base_links=False)
-        d.set_association_edges(multiline=True)
-        d.generate_pdf()
+        uml4_shared()
 
     def test_cmip(self):
         if self.v2p1:
-            d = BasicUML('test_output/doc_cmip', option='uml', title="CMIP Package")
-            d.set_visible_package('cmip', restrict=True, show_base_links=False)
-            d.set_association_edges(multiline=True)
-            d.generate_pdf()
+            uml4_cmip()
+
+    def test_time(self):
+        uml4_time()
 
     def test_simulation(self):
         """ Understand how the various simulation pieces go together"""
