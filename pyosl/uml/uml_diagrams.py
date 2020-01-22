@@ -56,6 +56,7 @@ class BasicUML:
             'directed': True,
             'ranksep': 0.3,
             'rankdir':'TB',
+            'margin':0
             }
 
         for k in kwargs:

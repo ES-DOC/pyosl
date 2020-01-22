@@ -141,7 +141,7 @@ class TestLatexFile(unittest.TestCase):
 
     def test_makedoc(self):
         doc = make_documentation()
-        with open('example.tex', 'w') as f:
+        with open('ontology_documentation.tex', 'w') as f:
             f.write(doc)
 
 if __name__=="__main__":
