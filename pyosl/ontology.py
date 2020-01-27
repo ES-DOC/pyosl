@@ -24,16 +24,16 @@ def info(klass, attribute=None):
 
     if attribute:
         if hasattr(oslmeta,'properties'):
-            for alist in  [oslmeta.properties, oslmeta.inherited_properties]:
+            for alist in [oslmeta.properties, oslmeta.inherited_properties]:
                 for p in alist:
                     k, d = p[0], f'{p[0]} - {p[3]} (cardinality {p[2]}, type {p[1]})'
                     if k == attribute:
                         return d
             raise ValueError(f'No such attribute {attribute} for {klass}')
-        elif hasattr(oslmeta,'members'):
-            for p in  oslmeta.members:
+        elif hasattr(oslmeta, 'members'):
+            for p in oslmeta.members:
                 k, d = p[0], f'{p[0]} - {p[1]}'
-                if k ==  attribute:
+                if k == attribute:
                     return d
             raise ValueError(f'No member {attribute} in {klass}')
         else:
@@ -89,7 +89,7 @@ class OntoBase:
                 return f'{self.name} ({self.__class__.__name__})'
             return f'Instance of {self.__class__.__name__}'
         else:
-            return f'Instance of {self.__class.__name__}'
+            return f'Instance of {self.__class__.__name__}'
 
     def __eq__(self, other):
         if type(self) != type(other):

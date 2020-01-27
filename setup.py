@@ -3,6 +3,7 @@ import os
 import re
 import fnmatch
 
+
 def find_package_data_files(directory):
     for root, dirs, files in os.walk(directory):
         for basename in files:
@@ -47,7 +48,7 @@ setup(name = "pyosl",
       maintainer   = "Bryan Lawrence",
       maintainer_email = "bryan.lawrence@ncas.ac.uk",
       author_email = "bryan.lawrence@ncas.ac.uk",
-      url          = "https://ncas-cms.github.io/pyosl",
+      url          = "https://github.com/es-doc/pyosl",
       download_url = "https://pypi.org/project/pyosl/#files",
       platforms    = ["Linux", "MacOS", "Windows"],
       keywords     = ['metadata', 'science', 'simulation', 'ontology',
@@ -63,6 +64,7 @@ setup(name = "pyosl",
       packages     = ['pyosl',
                       'pyosl/uml',
                       'pyosl/test',
+                      'pyosl/tools',
                       ],
       package_data = {'pyosl': ['etc/*.ini']},
 )

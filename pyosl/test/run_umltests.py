@@ -6,19 +6,18 @@ import unittest
 # We don't do the UML tests at the same time since they build a different ontology
 # (an ontology of UML views)
 
-testsuite = unittest.TestSuite()
-testsuite.addTests(unittest.TestLoader().discover('.', pattern='test_*.py'))
-
+# separate out the uml tests since they use the ontology in a different way
+umltests = unittest.TestSuite()
+umltests.addTests(unittest.TestLoader().discover('.', pattern='testu_*.py'))
 
 def run_test_suite(verbosity=2):
     ''' Runs the test suite'''
     runner = unittest.TextTestRunner(verbosity=verbosity)
-    runner.run(testsuite)
-
+    runner.run(umltests)
 
 if __name__ == '__main__':
     print('---------------')
-    print('PYOSL TEST SUITE')
+    print('PYOSL UML TEST SUITE')
     print('---------------')
     print('Run date:', datetime.datetime.now())
     print('')

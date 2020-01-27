@@ -67,7 +67,7 @@ class TestOntoBase(unittest.TestCase):
         assert hasattr(self.k, '_osl')
 
     def test_str(self):
-        assert str(self.k) == 'Instance of cim.2.designing.numerical_experiment'
+        assert str(self.k) == 'Instance of designing.numerical_experiment'
 
     def test_core_validator(self):
         self.assertTrue(self.f.core_validator(self.kbb, 'designing.numerical_requirement'))

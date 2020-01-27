@@ -5,13 +5,12 @@ from pyosl.tools import named_build, calendar_period, osl_fill_from, online, num
 from pyosl.tools import osl_encode2json, bundle_instance, Triples, Triples2
 from pyosl.uml import TriplesDelux
 
-from rdflib.extras.external_graph_libs import rdflib_to_networkx_multidigraph
 import networkx as nx
 import matplotlib.pyplot as plt
-import pandas as pd
 import math
 
 from collections import namedtuple, OrderedDict
+
 
 def make_archer():
     """ As an example, let's minimally describe ARCHER. In this case with one json document."""
@@ -96,7 +95,7 @@ def make_archer2():
     home = named_build('platform.storage_pool', 'Home Storage')
     burst = named_build('platform.storage_pool', 'Burst Buffer')
     slingshot = named_build('platform.interconnect', 'Slingshot Interconnect')
-    nic = named_build('platform.nic','Shasta SS-10')
+    nic = named_build('platform.nic', 'Shasta SS-10')
 
     # and build our description of ARCHER:
     archer.name = 'Archer2'
@@ -114,10 +113,10 @@ def make_archer2():
     highmem_nodes.memory_per_node = numeric_value(512., 'GB')
     highmem_nodes.number_of_nodes = 292
     highmem_nodes.clock_speed = numeric_value(2.2, 'GHz')
-    highmem_nodes.network_cards_per_node=[nic, nic]
+    highmem_nodes.network_cards_per_node = [nic, nic]
     normal_nodes.memory_per_node = numeric_value(256., 'GB')
     normal_nodes.number_of_nodes = 5556
-    normal_nodes = osl_fill_from(normal_nodes, highmem_nodes)
+    osl_fill_from(normal_nodes, highmem_nodes)
     nic.bandwidth = numeric_value(100., 'Gb')
     nic.vendor = cray
 

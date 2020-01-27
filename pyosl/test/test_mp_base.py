@@ -31,7 +31,7 @@ class TestBase(unittest.TestCase):
 
     def test_pstr(self):
         name = 'Core Simulations'
-        expected_name = '{} ({})'.format(name, self.sp._osl.type_key)
+        expected_name = '{} ({}.{})'.format(name, self.sp._osl.package, self.sp._osl.class_name)
         self.sp.name = name
         assert expected_name == str(self.sp)
 

@@ -6,7 +6,7 @@ from pyosl.uml import BasicUML
 from pyosl.uml import PackageUML
 from pyosl.uml import UmlBase
 
-from . uml4_packages import uml4_activity, uml4_cmip, uml4_data, uml4_design, \
+from pyosl.uml import uml4_activity, uml4_cmip, uml4_data, uml4_design, \
     uml4_drs, uml4_iso, uml4_platform, uml4_science, uml4_shared, uml4_software, \
     uml4_time
 

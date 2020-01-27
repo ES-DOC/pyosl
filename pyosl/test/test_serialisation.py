@@ -53,6 +53,8 @@ class TestESDArchive(unittest.TestCase):
             self.folders.append(base / folder)
 
     def test_rwesddocs(self):
+        """ This is currently raising an error, not unexpected due to minor incompatabilities in
+        serialisation. Will be fixed in a future version."""
         for f in self.folders:
             docfiles = f.glob('*.json')
             for docfile in docfiles:

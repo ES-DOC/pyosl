@@ -140,7 +140,7 @@ class Factory:
     def new_document(klass, author=None):
         """ Build and initialise a new document"""
         doc = Factory.build(klass)
-        if not hasattr(doc,'_meta'):
+        if not hasattr(doc, '_meta'):
             raise ValueError(f'Not-a-Document: Cannot build "{klass}" via new_document method')
         doc._meta.uid = str(uuid4())
         if author:

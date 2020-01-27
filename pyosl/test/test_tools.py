@@ -53,6 +53,12 @@ class TestTools(unittest.TestCase):
         self.assertEqual(self.n.number_of_nodes, NORMAL_N)
         self.assertEqual(self.h.number_of_nodes, HIGH_N)
 
+    def test_fillfrom_list(self):
+        """ Test that fill from with a list works"""
+        nic = named_build('platform.nic', 'MyNetworkCard')
+        self.h.network_cards_per_node = [nic, nic]
+        osl_fill_from(self.n, self.h)
+
     def test_period(self):
         period = calendar_period('2013-11-01', '2020-01-16')
         print(period)

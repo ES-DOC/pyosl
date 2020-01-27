@@ -1,7 +1,12 @@
-from pyosl import Factory
+from pyosl import Factory, Ontology
 from jinja2 import Template
 import unittest
-from . uml4_packages import *
+from pyosl.uml import (uml4_time, uml4_iso, uml4_drs, uml4_cmip, uml4_design, uml4_data, uml4_activity,
+                       uml4_platform, uml4_science, uml4_shared, uml4_software)
+
+from pyosl.uml import UmlBase
+Factory.register(Ontology(UmlBase))
+
 
 item_template = r"""
 \begin{table}[!htbp] 
@@ -136,6 +141,7 @@ def make_documentation():
 
     doc = d.render(content=content, version=Factory.ontology.full_version)
     return doc
+
 
 class TestLatexFile(unittest.TestCase):
 

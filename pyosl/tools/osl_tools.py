@@ -93,7 +93,10 @@ def conditional_copy(self, other, key, altkey=None):
                 exists = getattr(other, usekey)
                 if exists:
                     return
-            setattr(other, usekey, deepcopy(possible))
+            if isinstance(possible, list):
+                setattr(other, usekey, [deepcopy(i) for i in possible])
+            else:
+                setattr(other, usekey, deepcopy(possible))
 
 def get_reference_for(document):
     """ Returns a doc_reference instance for a document"""
